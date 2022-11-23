@@ -1,0 +1,14 @@
+\#*\#
+*/l10n/*json
+*.coffee.js
+*.swp
+*.pyc
+__pycache__
+build
+build-info.json
+build-stamp-*
+*~
+.idea
+.\#*
+.vscode/
+

@@ -1,0 +1,29 @@
+plugin:
+  name: easydb-plugin-zooniverse-import
+  version: 1.0
+  url: https://github.com/programmfabrik/easydb-plugin-zooniverse-import
+  displayname:
+    de-DE: Zooniverse Import Plugin
+  server:
+    api-version:
+      require: 1
+  webfrontend:
+    url: ZooniverseImportMenuApp.js
+    l10n: l10n/
+
+python-2:
+  file: src/server/main.py
+
+base_config:
+  - name: zooniverse_import
+    group: zooniverse_import
+    parameters:
+      api_user:
+        type: text
+        position: 1
+      api_password:
+        type: text
+        position: 2
+      api_session_token:
+        type: text
+        position: 3
