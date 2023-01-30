@@ -34,7 +34,7 @@ JS = \
 
 all: build
 
-include ../easydb-library/tools/base-plugins.make
+include easydb-library/tools/base-plugins.make
 
 build: code $(L10N) buildinfojson
 
