@@ -4,12 +4,12 @@ import util
 import zooniverse
 
 PLUGIN_NAME = 'easydb-plugin-zooniverse-import'
-LOGGER_NAME = 'pf.plugin.extension.' + PLUGIN_NAME
 ENDPOINT_ZOONIVERSE_IMPORT = 'zooniverse_import'
 
 
 def easydb_server_start(easydb_context):
-    logger = easydb_context.get_logger(LOGGER_NAME)
+    logger = easydb_context.get_logger(PLUGIN_NAME)
+    logger.debug('debugging is activated')
 
     easydb_context.register_callback('api', {
         'name': ENDPOINT_ZOONIVERSE_IMPORT,
@@ -20,28 +20,15 @@ def easydb_server_start(easydb_context):
         PLUGIN_NAME, ENDPOINT_ZOONIVERSE_IMPORT))
 
 
+@util.handle_exceptions
 def api_zooniverse_import(easydb_context, parameters):
+    logger = easydb_context.get_logger(PLUGIN_NAME)
 
-    logger = easydb_context.get_logger(LOGGER_NAME)
-
-    PARAMS_KEY = 'query_string_parameters'
-    CSV_KEY = 'csvdata'
-    if not PARAMS_KEY in parameters:
-        err = '{0} missing in request'.format(PARAMS_KEY)
-        logger.warn(err)
-        util.json_error_response(err)
-    if not CSV_KEY in parameters[PARAMS_KEY]:
-        err = '{0}.{1} missing in request'.format(PARAMS_KEY, CSV_KEY)
-        logger.warn(err)
-        util.json_error_response(err)
-
-    content = None
     try:
-        csv_data = ''.join(parameters[PARAMS_KEY][CSV_KEY]).splitlines()
-        content = zooniverse.parse_csv(csv_data, logger)
-    except Exception as e:
-        return util.json_error_response('could not parse {0}.{1}: {2}'.format(PARAMS_KEY, CSV_KEY, str(e)))
-    if content is None:
-        return util.json_error_response('could not parse {0}.{1}'.format(PARAMS_KEY, CSV_KEY))
+        content = zooniverse.parse_data(parameters['body'], logger)
+        if content is None:
+            return util.json_error_response('could not parse body'.format())
+        return util.json_response(content)
 
-    return util.json_response(content)
+    except Exception as e:
+        return util.json_error_response('could not parse body: {0}'.format(str(e)))

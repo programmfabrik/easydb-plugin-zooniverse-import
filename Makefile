@@ -32,11 +32,14 @@ JS = \
 	$(WEB)/ZooniverseImportMenuApp.js \
 	$(WEB)/ZooniverseImport.js
 
+SCSS_FILES = \
+	$(WEB)/ZooniverseImport.scss
+
 all: build
 
 include easydb-library/tools/base-plugins.make
 
-build: code $(L10N) buildinfojson
+build: code css $(L10N) buildinfojson
 
 code: $(JS)
 

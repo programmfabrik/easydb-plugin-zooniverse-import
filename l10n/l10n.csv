@@ -1,10 +1,15 @@
 key,de-DE,en-US,da-DK,fi-FI,sv-SE,it-IT,es-ES,ru-RU,pl-PL,cs-CZ
-zooniverse_import.app.label,Zooniverse Import,Zooniverse Import,Zooniverse Import,Zooniverse Import,Zooniverse Import,Zooniverse Import,Zooniverse Import,Zooniverse Import,Zooniverse Import,Zooniverse Import
-server.config.group.system.zooniverse_import.title,Zooniverse Import,Zooniverse Import,Zooniverse Import,Zooniverse Import,Zooniverse Import,Zooniverse Import,Zooniverse Import,Zooniverse Import,Zooniverse Import,Zooniverse Import
+zooniverse.importer.modal.header.label|text,Zooniverse Import,Zooniverse Import,,Zooniverse tuonti,,,,,,
+zooniverse.importer.modal.confirm_cancel,Wollen Sie den Import abbrechen?,Do you want to cancel the import?,,,,,,,,
+zooniverse.importer.modal_content.header.label,Wählen Sie eine CSV Datei mit exportierten Zooniverse Daten,Select a CSV file with Zooniverse export data ,,,,,,,,
+zooniverse.importer.modal_content.upload_csv_button.label,CSV Datei öffnen,Open CSV file,,,,,,,,
+zooniverse.importer.import_button.label,Importieren,Import,,,,,,,,
 server.config.group.system.zooniverse_import.introduction,-,-,-,-,-,-,-,-,-,-
-server.config.name.system.zooniverse_import,API-Nutzer,API User,API User,API User,API User,API User,API User,API User,API User,API User
-server.config.name.system.zooniverse_import|hint,"Der Nutzer benötigt ausreichende Berechtigungen, die relevanten Objekttypen zu lesen und zu schreiben",The User needs sufficient permissions to read and write the relevant object types,The User needs sufficient permissions to read and write the relevant object types,The User needs sufficient permissions to read and write the relevant object types,The User needs sufficient permissions to read and write the relevant object types,The User needs sufficient permissions to read and write the relevant object types,The User needs sufficient permissions to read and write the relevant object types,The User needs sufficient permissions to read and write the relevant object types,The User needs sufficient permissions to read and write the relevant object types,The User needs sufficient permissions to read and write the relevant object types
-server.config.parameter.system.zooniverse_import.api_user.label,Login,Login,Login,Login,Login,Login,Login,Login,Login,Login
-server.config.parameter.system.zooniverse_import.api_password.label,Passwort,Password,Password,Password,Password,Password,Password,Password,Password,Password
-server.config.parameter.system.zooniverse_import.api_session_token.label,Token,Token,Token,Token,Token,Token,Token,Token,Token,Token
-server.config.parameter.system.zooniverse_import.api_session_token.label|hint,"optional, wird ignoriert wenn Login und Passwort gesetzt sind","optional, is ignored if Login and Password are set","optional, is ignored if Login and Password are set","optional, is ignored if Login and Password are set","optional, is ignored if Login and Password are set","optional, is ignored if Login and Password are set","optional, is ignored if Login and Password are set","optional, is ignored if Login and Password are set","optional, is ignored if Login and Password are set","optional, is ignored if Login and Password are set"
+server.config.group.system.zooniverse_import.title,Zooniverse Import,Zooniverse Import,,Zooniverse tuonti,,,,,,
+server.config.name.system.zooniverse_import,API-Nutzer,API User,,API-käyttäjä,,,,,,
+server.config.name.system.zooniverse_import|hint,"Der Nutzer benötigt ausreichende Berechtigungen, die relevanten Objekttypen zu lesen und zu schreiben",The User needs sufficient permissions to read and write the relevant object types,,Käyttäjä tarvitsee riittävät oikeudet lukea ja kirjoittaa asiaankuuluvia objektityyppejä,,,,,,
+server.config.parameter.system.zooniverse_import.api_password.label,Passwort,Password,,Salasana,,,,,,
+server.config.parameter.system.zooniverse_import.api_session_token.label,Token,Token,,Tunniste,,,,,,
+server.config.parameter.system.zooniverse_import.api_session_token.label|hint,"optional, wird ignoriert wenn Login und Passwort gesetzt sind","optional, is ignored if Login and Password are set",,"valinnainen, ohitetaan, jos käyttäjätunnus ja salasana on asetettu",,,,,,
+server.config.parameter.system.zooniverse_import.api_user.label,Login,Login,,Käyttäjätunnus,,,,,,
+zooniverse_import.app.label,Zooniverse Import,Zooniverse Import,,Zooniverse tuonti,,,,,,

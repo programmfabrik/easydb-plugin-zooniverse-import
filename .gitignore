@@ -11,4 +11,5 @@ build-stamp-*
 .idea
 .\#*
 .vscode/
-
+test.py
+testdata/

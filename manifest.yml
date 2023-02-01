@@ -9,6 +9,7 @@ plugin:
       require: 1
   webfrontend:
     url: ZooniverseImportMenuApp.js
+    css: easydb-plugin-zooniverse-import.css
     l10n: l10n/
 
 python-2:

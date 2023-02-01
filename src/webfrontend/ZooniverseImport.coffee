@@ -13,18 +13,19 @@ class ZooniverseImport extends CUI.Element
 
 	__init: ->
 		@__modalContent = new CUI.VerticalList
+			class: "ez5-zooniverse-importer-list"
 			content: [
 				new CUI.Label
-					text: "Please upload a valid CSV and press import"
+					text: $$("zooniverse.importer.modal_content.header.label")
 			,
 				new CUI.FileUploadButton
 					fileUpload: @__getUploadFileReader()
-					text: "Upload CSV"
+					text: $$("zooniverse.importer.modal_content.upload_csv_button.label")
 					multiple: false
 			]
 
 		@__importButton = new CUI.Button
-			text: "Import"
+			text: $$("zooniverse.importer.import_button.label")
 			primary: true
 			disabled: true
 			onClick: =>
@@ -49,7 +50,7 @@ class ZooniverseImport extends CUI.Element
 
 	cancel: ->
 		CUI.confirm
-			text: "Are you sure you want to close the import?"
+			text: $$("zooniverse.importer.modal.confirm_cancel")
 		.done =>
 			@__modal.destroy()
 
@@ -57,21 +58,25 @@ class ZooniverseImport extends CUI.Element
 		new CUI.FileReader
 			onDone: (fileReader) =>
 				try
-					@__csv_data = fileReader.getResult()
-					console.log @__csv_data
-					@__importButton.enable()
+					csv_data = new CUI.CSVData()
+					csv_data.parse(
+						text: fileReader.getResult().replaceAll('""', '`')
+					)
+					.done =>
+						@__csv_data = csv_data.rows
+						console.log @__csv_data
+						@__importButton.enable()
 				catch
 					CUI.problem(text: "Error")
 					return
 
 	__importCSV: ->
-		url = ez5.pluginManager.getPlugin("easydb-plugin-zooniverse-import").getBaseURL()
+		url = ez5.pluginManager.getPlugin("easydb-plugin-zooniverse-import").getPluginURL()
 		ez5.server
 			local_url: url+"/zooniverse_import"
 			type: "POST"
 			add_token: true
-			data:
-				csvdata: @__csv_data
+			json_data: @__csv_data
 		.done (result, status, xhr) =>
 			console.log result
 		.fail () =>

@@ -3,9 +3,11 @@
 from datetime import datetime
 import json
 import csv
+import util
 
 
-def parse_csv_row(row, header_ids, logger):
+@util.handle_exceptions
+def parse_row(row, header_ids, logger):
 
     if len(row) < 1:
         return None, None, None, None
@@ -36,20 +38,17 @@ def parse_csv_row(row, header_ids, logger):
 
     created_at = None
     try:
-        created_at_d = datetime.strptime(
-            row[idx_created_at].strip(),
-            '%Y-%m-%d %H:%M:%S %Z'
-        )
+        created_at_d = datetime.strptime(row[idx_created_at].strip(), '%Y-%m-%d %H:%M:%S %Z')
         created_at = created_at_d.strftime('%Y-%m-%dT%H:%M:%S+0:00')
     except Exception as e:
-        print('ERROR:', e)
+        logger.warn('ERROR: ' + str(e))
 
     try:
-        annotations = json.loads(row[idx_annotations])
-        subject_data = json.loads(row[idx_subject_data])
+        annotations = json.loads(row[idx_annotations].replace('`', '"'))
+        subject_data = json.loads(row[idx_subject_data].replace('`', '"'))
         return annotations, subject_data, row[idx_user_name].strip(), created_at
     except Exception as e:
-        print('ERROR:', e)
+        logger.warn('ERROR: ' + str(e))
 
     return None, None, None, None
 
@@ -119,23 +118,24 @@ def parse_annotations(annotations, logger):
     return parsed_annotations
 
 
-def parse_csv(data, logger):
+def parse_data(data, logger):
     first = True
     header_ids = {}
 
     collected_objects = {}
     valid_rows = 0
 
-    csvreader = csv.reader(data, delimiter=',', quotechar='"', escapechar='\\')
-    for row in csvreader:
+    for row in json.loads(data):
+        if len(row) < 1:
+            continue
+
         if first:
             first = False
             for i in range(len(row)):
                 header_ids[row[i]] = i
             continue
 
-        annotations, subject_data, user_name, created_at = parse_csv_row(
-            row, header_ids, logger)
+        annotations, subject_data, user_name, created_at = parse_row(row, header_ids, logger)
         if annotations is None:
             continue
         if subject_data is None:
@@ -161,7 +161,11 @@ def parse_csv(data, logger):
 
         valid_rows += 1
 
-    logger.info('parsed {0} objects from {1} csv rows'.format(
-        len(collected_objects), valid_rows))
+    logger.info('parsed {0} objects from {1} csv rows'.format(len(collected_objects), valid_rows))
+    response = {
+        'count_rows': valid_rows,
+        'count_objs': len(collected_objects),
+        'objects': collected_objects,
+    }
 
-    return collected_objects
+    return response
