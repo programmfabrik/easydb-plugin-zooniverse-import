@@ -13,3 +13,23 @@ server.config.parameter.system.zooniverse_import.api_session_token.label,Token,T
 server.config.parameter.system.zooniverse_import.api_session_token.label|hint,"optional, wird ignoriert wenn Login und Passwort gesetzt sind","optional, is ignored if Login and Password are set",,"valinnainen, ohitetaan, jos käyttäjätunnus ja salasana on asetettu",,,,,,
 server.config.parameter.system.zooniverse_import.api_user.label,Login,Login,,Käyttäjätunnus,,,,,,
 zooniverse_import.app.label,Zooniverse Import,Zooniverse Import,,Zooniverse tuonti,,,,,,
+server.config.name.system.zooniverse_import_mappings,Zuordnungen zwischen Objekten und Daten aus Zooniverse,Mapping between records and Zooniverse data,,,,,,,,
+server.config.parameter.system.zooniverse_import_mappings.mappings.label,-,-,-,-,-,-,-,-,-,-
+server.config.parameter.system.zooniverse_import_mappings.enabled.checkbox,Zuordnung aktiviert,Mapping enabled,,,,,,,,
+server.config.parameter.system.zooniverse_import_mappings.mappings.enabled.label,-,-,-,-,-,-,-,-,-,-
+server.config.parameter.system.zooniverse_import.mappings.update_objecttype.label,Objekttyp,Objecttype,,,,,,,,
+server.config.parameter.system.zooniverse_import.mappings.update_objecttype.label|hint,-,-,-,-,-,-,-,-,-,-
+server.config.parameter.system.zooniverse_import.mappings.match_column.label,Feld für Abgleich,Field for match,,,,,,,,
+server.config.parameter.system.zooniverse_import.mappings.match_column.label|hint,"Feld mit eindeutigem Wert, der für den Abgleich mit der Zooniverse Signatur (CSV-Spalte `subject_data` - `Filename`) genutzt wird",Feld with unique value which will be used for matching with the Zooniverse signature (CSV column `subject_data` - `Filename`),,,,,,,,
+server.config.parameter.system.zooniverse_import.mappings.update_column_t0.label,Zielfeld T0,Target field T0,,,,,,,,
+server.config.parameter.system.zooniverse_import.mappings.update_column_t0.label|hint,Zielfeld für den Wert aus der CSV-Spalte `annotations` - `task: T0`,Target field for the value of CSV column `annotations` - `task: T0`,,,,,,,,
+server.config.parameter.system.zooniverse_import.mappings.update_column_t2.label,Zielfeld T2,Target field T2,,,,,,,,
+server.config.parameter.system.zooniverse_import.mappings.update_column_t2.label|hint,Zielfeld für den Wert aus der CSV-Spalte `annotations` - `task: T2`,Target field for the value of CSV column `annotations` - `task: T2`,,,,,,,,
+server.config.parameter.system.zooniverse_import.mappings.update_column_t3.label,Zielfeld T3,Target field T3,,,,,,,,
+server.config.parameter.system.zooniverse_import.mappings.update_column_t3.label|hint,Zielfeld für den Wert aus der CSV-Spalte `annotations` - `task: T3`,Target field for the value of CSV column `annotations` - `task: T3`,,,,,,,,
+server.config.parameter.system.zooniverse_import.mappings.update_column_t4.label,Zielfeld T4,Target field T4,,,,,,,,
+server.config.parameter.system.zooniverse_import.mappings.update_column_t4.label|hint,Zielfeld für den Wert aus der CSV-Spalte `annotations` - `task: T4`,Target field for the value of CSV column `annotations` - `task: T4`,,,,,,,,
+server.config.parameter.system.zooniverse_import.mappings.update_column_created_at.label,Zielfeld created_at,Target field created_at,,,,,,,,
+server.config.parameter.system.zooniverse_import.mappings.update_column_created_at.label|hint,Zielfeld für den Wert aus der CSV-Spalte `created_at`,Target field for the value of CSV column `created_at`,,,,,,,,
+server.config.parameter.system.zooniverse_import.mappings.update_column_user_name.label,Zielfeld user_name,Target field user_name,,,,,,,,
+server.config.parameter.system.zooniverse_import.mappings.update_column_user_name.label|hint,Zielfeld für den Wert aus der CSV-Spalte `user_name`,Target field for the value of CSV column `user_name`,,,,,,,,

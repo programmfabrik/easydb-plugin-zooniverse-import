@@ -16,15 +16,47 @@ python-2:
   file: src/server/main.py
 
 base_config:
-  - name: zooniverse_import
+
+  - name: zooniverse_import_mappings
     group: zooniverse_import
     parameters:
-      api_user:
-        type: text
-        position: 1
-      api_password:
-        type: text
-        position: 2
-      api_session_token:
-        type: text
-        position: 3
+      mappings:
+        type: table
+        position: 0
+        fields:
+          - name: enabled
+            type: bool
+            default: true
+            position: 0
+          - name: update_objecttype
+            type: text
+            plugin_type: update_objecttype
+            position: 1
+          - name: match_column
+            type: text
+            plugin_type: match_column
+            position: 2
+          - name: update_column_t0
+            type: text
+            plugin_type: update_column_t0
+            position: 3
+          - name: update_column_t2
+            type: text
+            plugin_type: update_column_t2
+            position: 4
+          - name: update_column_t3
+            type: text
+            plugin_type: update_column_t3
+            position: 5
+          - name: update_column_t4
+            type: text
+            plugin_type: update_column_t4
+            position: 6
+          - name: update_column_created_at
+            type: text
+            plugin_type: update_column_created_at
+            position: 7
+          - name: update_column_user_name
+            type: text
+            plugin_type: update_column_user_name
+            position: 8

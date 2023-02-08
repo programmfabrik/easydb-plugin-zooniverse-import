@@ -15,6 +15,8 @@ INSTALL_FILES = \
 	$(WEB)/l10n/cz-CS.json \
 	$(WEB)/ZooniverseImportMenuApp.js \
 	$(WEB)/ZooniverseImport.js \
+	$(WEB)/ZooniverseImportBaseConfig.js \
+	$(WEB)/ZooniverseImport.scss \
 	src/server/main.py \
 	src/server/util.py \
 	src/server/zooniverse.py \
@@ -26,11 +28,13 @@ L10N_GOOGLE_GID = 1425917363
 
 COFFEE_FILES = \
 	$(WEB)/ZooniverseImportMenuApp.coffee \
-	$(WEB)/ZooniverseImport.coffee
+	$(WEB)/ZooniverseImport.coffee \
+	$(WEB)/ZooniverseImportBaseConfig.coffee
 
 JS = \
 	$(WEB)/ZooniverseImportMenuApp.js \
-	$(WEB)/ZooniverseImport.js
+	$(WEB)/ZooniverseImport.js \
+	$(WEB)/ZooniverseImportBaseConfig.js
 
 SCSS_FILES = \
 	$(WEB)/ZooniverseImport.scss
