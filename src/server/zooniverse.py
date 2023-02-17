@@ -119,13 +119,20 @@ def parse_annotations(annotations, logger):
 
 
 def parse_data(data, logger):
+    if data is None:
+        raise Exception('no valid zooniverse csv data!')
+
+    csv_data = util.get_json_value(json.loads(data), 'csv')
+    if not isinstance(csv_data, list):
+        raise Exception('no valid zooniverse csv data!')
+
     first = True
     header_ids = {}
 
     collected_objects = {}
     valid_rows = 0
 
-    for row in json.loads(data):
+    for row in csv_data:
         if len(row) < 1:
             continue
 
@@ -162,10 +169,10 @@ def parse_data(data, logger):
         valid_rows += 1
 
     logger.info('parsed {0} objects from {1} csv rows'.format(len(collected_objects), valid_rows))
-    response = {
-        'count_rows': valid_rows,
-        'count_objs': len(collected_objects),
-        'objects': collected_objects,
-    }
 
-    return response
+    return collected_objects, {
+        'count': {
+            'parsed_rows': valid_rows,
+            'parsed_objs': len(collected_objects),
+        }
+    }

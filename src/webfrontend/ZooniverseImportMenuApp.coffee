@@ -5,8 +5,7 @@ class ZooniverseImportMenuApp extends RootMenuApp
 		(new ZooniverseImport()).show()
 
 	@is_allowed: ->
-		# todo ez5.session.hasSystemRight("root", "plugin.zooniverse_import.allow_use")
-		true
+		ez5.session.hasSystemRight("root", "plugin.easydb-plugin-zooniverse-import.allow_use")
 
 	@group: ->
 		"za_importer"

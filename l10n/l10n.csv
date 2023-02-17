@@ -3,6 +3,12 @@ zooniverse.importer.modal.header.label|text,Zooniverse Import,Zooniverse Import,
 zooniverse.importer.modal.confirm_cancel,Wollen Sie den Import abbrechen?,Do you want to cancel the import?,,,,,,,,
 zooniverse.importer.modal_content.header.label,Wählen Sie eine CSV Datei mit exportierten Zooniverse Daten,Select a CSV file with Zooniverse export data ,,,,,,,,
 zooniverse.importer.modal_content.upload_csv_button.label,CSV Datei öffnen,Open CSV file,,,,,,,,
+zooniverse.importer.modal_content.parse_csv_button.label,CSV Daten im Server parsen ,Parse CSV data in server,,,,,,,,
+error.user.zooniverse_import,"Beim Parsen der Daten ist ein Fehler aufgetreten:
+
+%(description)s","Parsing of the data caused an error:
+
+%(description)s",,,,,,,,
 zooniverse.importer.import_button.label,Importieren,Import,,,,,,,,
 server.config.group.system.zooniverse_import.introduction,-,-,-,-,-,-,-,-,-,-
 server.config.group.system.zooniverse_import.title,Zooniverse Import,Zooniverse Import,,Zooniverse tuonti,,,,,,
@@ -23,13 +29,23 @@ server.config.parameter.system.zooniverse_import.mappings.match_column.label,Fel
 server.config.parameter.system.zooniverse_import.mappings.match_column.label|hint,"Feld mit eindeutigem Wert, der für den Abgleich mit der Zooniverse Signatur (CSV-Spalte `subject_data` - `Filename`) genutzt wird",Feld with unique value which will be used for matching with the Zooniverse signature (CSV column `subject_data` - `Filename`),,,,,,,,
 server.config.parameter.system.zooniverse_import.mappings.update_column_t0.label,Zielfeld T0,Target field T0,,,,,,,,
 server.config.parameter.system.zooniverse_import.mappings.update_column_t0.label|hint,Zielfeld für den Wert aus der CSV-Spalte `annotations` - `task: T0`,Target field for the value of CSV column `annotations` - `task: T0`,,,,,,,,
+server.config.parameter.system.zooniverse_import_mappings.mappings.split_update_column_t0.label,-,-,-,-,-,-,-,-,-,-
+server.config.parameter.system.zooniverse_import_mappings.split_update_column_t0.checkbox,"Werte aufsplitten (an `,` und `;`)","Split values (at `,` and `;`)",,,,,,,,
 server.config.parameter.system.zooniverse_import.mappings.update_column_t2.label,Zielfeld T2,Target field T2,,,,,,,,
 server.config.parameter.system.zooniverse_import.mappings.update_column_t2.label|hint,Zielfeld für den Wert aus der CSV-Spalte `annotations` - `task: T2`,Target field for the value of CSV column `annotations` - `task: T2`,,,,,,,,
+server.config.parameter.system.zooniverse_import_mappings.mappings.split_update_column_t2.label,-,-,-,-,-,-,-,-,-,-
+server.config.parameter.system.zooniverse_import_mappings.split_update_column_t2.checkbox,"Werte aufsplitten (an `,` und `;`)","Split values (at `,` and `;`)",,,,,,,,
 server.config.parameter.system.zooniverse_import.mappings.update_column_t3.label,Zielfeld T3,Target field T3,,,,,,,,
 server.config.parameter.system.zooniverse_import.mappings.update_column_t3.label|hint,Zielfeld für den Wert aus der CSV-Spalte `annotations` - `task: T3`,Target field for the value of CSV column `annotations` - `task: T3`,,,,,,,,
+server.config.parameter.system.zooniverse_import_mappings.mappings.split_update_column_t3.label,-,-,-,-,-,-,-,-,-,-
+server.config.parameter.system.zooniverse_import_mappings.split_update_column_t3.checkbox,"Werte aufsplitten (an `,` und `;`)","Split values (at `,` and `;`)",,,,,,,,
 server.config.parameter.system.zooniverse_import.mappings.update_column_t4.label,Zielfeld T4,Target field T4,,,,,,,,
 server.config.parameter.system.zooniverse_import.mappings.update_column_t4.label|hint,Zielfeld für den Wert aus der CSV-Spalte `annotations` - `task: T4`,Target field for the value of CSV column `annotations` - `task: T4`,,,,,,,,
+server.config.parameter.system.zooniverse_import_mappings.mappings.split_update_column_t4.label,-,-,-,-,-,-,-,-,-,-
+server.config.parameter.system.zooniverse_import_mappings.split_update_column_t4.checkbox,"Werte aufsplitten (an `,` und `;`)","Split values (at `,` and `;`)",,,,,,,,
 server.config.parameter.system.zooniverse_import.mappings.update_column_created_at.label,Zielfeld created_at,Target field created_at,,,,,,,,
 server.config.parameter.system.zooniverse_import.mappings.update_column_created_at.label|hint,Zielfeld für den Wert aus der CSV-Spalte `created_at`,Target field for the value of CSV column `created_at`,,,,,,,,
 server.config.parameter.system.zooniverse_import.mappings.update_column_user_name.label,Zielfeld user_name,Target field user_name,,,,,,,,
 server.config.parameter.system.zooniverse_import.mappings.update_column_user_name.label|hint,Zielfeld für den Wert aus der CSV-Spalte `user_name`,Target field for the value of CSV column `user_name`,,,,,,,,
+acl.right.manager.group.system.zooniverse_import,Zooniverse Import,Zooniverse Import,,,,,,,,
+server.right.system.plugin.easydb-plugin-zooniverse-import.allow_use,Zooniverse Import benutzen,Use Zooniverse Import,,,,,,,,

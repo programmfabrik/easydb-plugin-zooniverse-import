@@ -50,3 +50,6 @@ code: $(JS)
 clean: clean-base
 
 wipe: wipe-base
+
+test:
+	python3 src/server/test.py

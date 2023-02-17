@@ -39,7 +39,8 @@ class ZooniverseImport extends CUI.Element
 					@__columns_by_id[String(field.column_id)] =
 						name: field._column.name
 						type: field._column.type
-						path: path
+					if path.length > 0
+						@__columns_by_id[String(field.column_id)]["path"] = path
 
 					continue
 
@@ -96,12 +97,14 @@ class ZooniverseImport extends CUI.Element
 		# api callback can not load all necessary information about the datamodel
 		# for each table, get the name by id and the corresponding mask
 
-		@__tables_by_id = {}
-		for t in ez5.schema.CURRENT.tables
-			@__tables_by_id[t.table_id] = t.name
-
 		@__columns_by_id = {}
 		@__parse_fields(ez5.mask.CURRENT.masks, [])
+
+		@__parseButton = new CUI.Button
+			text: $$("zooniverse.importer.modal_content.parse_csv_button.label")
+			disabled: true
+			onClick: =>
+				@__parseCSV()
 
 		@__modalContent = new CUI.VerticalList
 			class: "ez5-zooniverse-importer-list"
@@ -113,14 +116,37 @@ class ZooniverseImport extends CUI.Element
 					fileUpload: @__getUploadFileReader()
 					text: $$("zooniverse.importer.modal_content.upload_csv_button.label")
 					multiple: false
+					onClick: =>
+						@__importButton.disable()
+			,
+				@__parseButton
 			]
 
 		@__importButton = new CUI.Button
 			text: $$("zooniverse.importer.import_button.label")
 			primary: true
 			disabled: true
-			onClick: =>
-				@__importCSV()
+			# onClick: =>
+
+				# todo import generated objects (like in JSON importer):
+				#
+				# objects from 'new' must be imported first (they are created as new linked objects)
+				# for each objecttype, the objects must be posted to api/v1/db/<linked_objecttype>
+				#
+				# objects from 'updated' must be imported after this, so they can reference the new linked objects
+				# these main objects are updated objects that are referenced by the signature (based on base config settings)
+				#
+				# response from endpoint looks like this:
+				# {
+				# 	"count": {...},
+				# 	"updated": {
+				# 		"<main_objecttype_1>": []
+				# 	},
+				# 	"new": {
+				# 		"<linked_objecttype_1>": [],
+				# 		"<linked_objecttype_2>": []
+				# 	}
+				# }
 
 		@__modal = new CUI.Modal
 			class: "ez5-zooniverse-importer-modal"
@@ -147,6 +173,7 @@ class ZooniverseImport extends CUI.Element
 
 	__getUploadFileReader: ->
 		new CUI.FileReader
+			# todo: add extension filter for csv
 			onDone: (fileReader) =>
 				try
 					csv_data = new CUI.CSVData()
@@ -155,12 +182,12 @@ class ZooniverseImport extends CUI.Element
 					)
 					.done =>
 						@__csv_data = csv_data.rows
-						@__importButton.enable()
+						@__parseButton.enable()
 				catch
 					CUI.problem(text: "Error")
 					return
 
-	__importCSV: ->
+	__parseCSV: ->
 		url = ez5.pluginManager.getPlugin("easydb-plugin-zooniverse-import").getPluginURL()
 		ez5.server
 			local_url: url+"/zooniverse_import"
@@ -168,15 +195,38 @@ class ZooniverseImport extends CUI.Element
 			add_token: true
 			json_data:
 				csv: @__csv_data
-				tables: @__tables_by_id
-				columns: @__columns_by_id
+				columns_by_id: @__columns_by_id
+
 		.done (result, status, xhr) =>
-			console.log "zooniverse", result
-			# todo import objects
-		.fail () =>
-			CUI.problem(text: "Something went wrong when sending the data to the server.")
+			console.log "zooniverse_import overview:", result?.count
 
+			# todo: show overview in text area (from 'count')
+			#
+			# or show a warning if no objects were parsed
+			#
+			# response from endpoint looks like this:
+			# {
+			# 	"count": {
+			# 		"parsed_rows": 134,
+			# 		"parsed_objs": 112,
+			# 		"updated": {
+			# 			"<main_objecttype_1>": 110
+			# 		},
+			# 		"updated_total": 110,
+			# 		"new": {
+			# 			"<linked_objecttype_1>": 50,
+			# 			"<linked_objecttype_2>": 80
+			# 		},
+			# 		"new_total": 130
+			# 	},
+			# 	...
+			# }
 
+			# only enable import button if there are objects to import
+			if result?.count?.new_total > 0 or result?.count?.updated_total > 0
+				@__importButton.enable()
 
-
+		.fail (result, status, xhr) =>
+			console.log "zooniverse_import error:", result
+			# CUI.problem() is not necessary, plugin returns a parsable error (error.user.zooniverse_import)
 

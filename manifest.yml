@@ -12,6 +12,10 @@ plugin:
     css: easydb-plugin-zooniverse-import.css
     l10n: l10n/
 
+system_rights:
+  - name: allow_use
+    group: zooniverse_import
+
 python-2:
   file: src/server/main.py
 
@@ -28,35 +32,55 @@ base_config:
             type: bool
             default: true
             position: 0
+
           - name: update_objecttype
             type: text
             plugin_type: update_objecttype
             position: 1
+
           - name: match_column
             type: text
             plugin_type: match_column
             position: 2
+
           - name: update_column_t0
             type: text
             plugin_type: update_column_t0
             position: 3
+          - name: split_update_column_t0
+            type: bool
+            position: 4
+
           - name: update_column_t2
             type: text
             plugin_type: update_column_t2
-            position: 4
+            position: 5
+          - name: split_update_column_t2
+            type: bool
+            position: 6
+
           - name: update_column_t3
             type: text
             plugin_type: update_column_t3
-            position: 5
+            position: 7
+          - name: split_update_column_t3
+            type: bool
+            position: 8
+
           - name: update_column_t4
             type: text
             plugin_type: update_column_t4
-            position: 6
+            position: 9
+          - name: split_update_column_t4
+            type: bool
+            position: 10
+
           - name: update_column_created_at
             type: text
             plugin_type: update_column_created_at
-            position: 7
+            position: 11
+
           - name: update_column_user_name
             type: text
             plugin_type: update_column_user_name
-            position: 8
+            position: 12
