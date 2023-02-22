@@ -81,8 +81,11 @@ def apply(obj, unique_linked_object_values, mapping, column_name, value, logger,
     # do not split if no nested
     if len(path) < 1:
         split_value = False
-    else:
+    elif len(path) < 2:
         if util.get_json_value(path[-1], 'type') != '_nested':
+            split_value = False
+    else:
+        if util.get_json_value(path[-1], 'type') != '_nested' and util.get_json_value(path[-2], 'type') != '_nested':
             split_value = False
 
     is_list = False
@@ -91,7 +94,7 @@ def apply(obj, unique_linked_object_values, mapping, column_name, value, logger,
         if len(value) < 1:
             return None
 
-    elif split_value:
+    if split_value:
         value = util.split_value(value)
         if isinstance(value, list):
             is_list = True

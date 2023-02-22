@@ -207,7 +207,7 @@ def load_objects_by_signature(easydb_context, objecttype, match_column, signatur
 # -----------------------
 
 @handle_exceptions
-def create_new_linked_objects(easydb_context, unique_linked_object_values, logger):
+def create_new_linked_objects(easydb_context, unique_linked_object_values, logger, languages):
     new_linked_objects = {}
     count_objects = {}
 
@@ -238,7 +238,7 @@ def create_new_linked_objects(easydb_context, unique_linked_object_values, logge
                     build_object(objecttype, {
                         '_version': 1,
                         match_column: v
-                    }))
+                    }, languages))
                 count += 1
 
         count_objects[objecttype] = count
@@ -248,8 +248,17 @@ def create_new_linked_objects(easydb_context, unique_linked_object_values, logge
 # -----------------------
 
 
-def build_object(objecttype, obj):
+def build_object(objecttype, obj, languages):
+    commments_l10n = {
+        'de-DE': 'Bearbeitung erfolgte durch das Zooniverse Import Plugin',
+        'en-US': 'Object was edited by the Zooniverse Import Plugin',
+    }
+    comment = commments_l10n['en-US']
+    if len(languages) > 0 and languages[0] in commments_l10n:
+        comment = commments_l10n[languages[0]]
+
     return {
+        '_comment': comment,
         '_mask': '_all_fields',
         '_objecttype': objecttype,
         objecttype: obj,

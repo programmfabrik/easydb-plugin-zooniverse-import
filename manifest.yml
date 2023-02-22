@@ -19,6 +19,11 @@ system_rights:
 python-2:
   file: src/server/main.py
 
+custom_events:
+  - ZOONIVERSE_IMPORT_INSERT
+  - ZOONIVERSE_IMPORT_UPDATE
+  - ZOONIVERSE_IMPORT_ERROR
+
 base_config:
 
   - name: zooniverse_import_mappings

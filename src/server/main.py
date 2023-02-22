@@ -39,7 +39,7 @@ def api_zooniverse_import(easydb_context, parameters):
         # load activated database languages from base config
         languages = util.get_json_value(config, 'base.system.languages.database')
         if not isinstance(languages, list) or len(languages) < 1:
-            languages = ['de-DE']
+            languages = ['en-US']
         logger.debug('database languages: {}'.format(util.dumpjs(languages)))
 
         # load mappings from base config
@@ -52,6 +52,7 @@ def api_zooniverse_import(easydb_context, parameters):
         stats['count']['new_total'] = 0
         stats['count']['updated'] = {}
         stats['count']['updated_total'] = 0
+        stats['events'] = []
 
         unique_linked_object_values = {}
 
@@ -71,6 +72,14 @@ def api_zooniverse_import(easydb_context, parameters):
                 list(collected_objects.keys()),
                 logger
             )
+
+            event = {
+                'type': 'ZOONIVERSE_IMPORT_UPDATE',
+                'info_json': {
+                    'objecttype': objecttype,
+                    'objects': []
+                }
+            }
 
             # iterate over objects, update objects with mapped data
             updated_objects = []
@@ -127,25 +136,59 @@ def api_zooniverse_import(easydb_context, parameters):
                                 languages=languages
                             )
 
+                id = util.get_json_value(obj, '_id')
+                if not isinstance(id, int):
+                    continue
+
                 version = util.get_json_value(obj, '_version')
                 if not isinstance(version, int):
                     continue
                 obj['_version'] = version + 1
 
-                updated_objects.append(util.build_object(objecttype, obj))
+                updated_objects.append(util.build_object(objecttype, obj, languages=languages))
                 count_updated += 1
+
+                event['info_json']['objects'].append({
+                    '_id': id,
+                    '_version': version + 1,
+                    'match_column': match_column,
+                    'unique_value': signatur
+                })
+
+            if len(updated_objects) < 1:
+                continue
 
             stats['updated'][objecttype] = updated_objects
             stats['count']['updated'][objecttype] = count_updated
             stats['count']['updated_total'] += count_updated
 
+            event['info_json']['objects'] = sorted(event['info_json']['objects'], key=lambda o: o['_id'])
+            stats['events'].append(event)
+
         new_linked_objects, count_new = util.create_new_linked_objects(
             easydb_context,
             unique_linked_object_values,
-            logger
+            logger,
+            languages
         )
         stats['new'] = new_linked_objects
         stats['count']['new'] = count_new
+
+        for objecttype in unique_linked_object_values:
+            event = {
+                'type': 'ZOONIVERSE_IMPORT_INSERT',
+                'info_json': {
+                    'objecttype': objecttype,
+                    'unique_column': match_column,
+                    'unique_values': []
+                }
+            }
+
+            for unique_column in unique_linked_object_values[objecttype]:
+                for v in sorted(unique_linked_object_values[objecttype][unique_column]):
+                    event['info_json']['unique_values'].append(v)
+
+            stats['events'].append(event)
 
         count_new_total = 0
         for ot in count_new:

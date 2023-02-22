@@ -91,6 +91,21 @@ class ZooniverseImport extends CUI.Element
 
 					continue
 
+	__log_events: ->
+		for e in @__events
+			if not "type" of e
+				continue
+			if not e.type in ["ZOONIVERSE_IMPORT_INSERT", "ZOONIVERSE_IMPORT_UPDATE"]
+				continue
+
+			event =
+				type: e.type
+				pollable: false
+			if "info_json" of e
+				event.info = e.info_json
+
+			EventPoller.saveEvent(event)
+
 
 	__init: ->
 		# plugin needs information about the datamodel
@@ -126,7 +141,7 @@ class ZooniverseImport extends CUI.Element
 			text: $$("zooniverse.importer.import_button.label")
 			primary: true
 			disabled: true
-			# onClick: =>
+			onClick: => # xxx
 
 				# todo import generated objects (like in JSON importer):
 				#
@@ -139,6 +154,7 @@ class ZooniverseImport extends CUI.Element
 				# response from endpoint looks like this:
 				# {
 				# 	"count": {...},
+				# 	"events": [],
 				# 	"updated": {
 				# 		"<main_objecttype_1>": []
 				# 	},
@@ -147,6 +163,9 @@ class ZooniverseImport extends CUI.Element
 				# 		"<linked_objecttype_2>": []
 				# 	}
 				# }
+
+				# todo: after import was successful, write events to event log -> call @__log_events()
+
 
 		@__modal = new CUI.Modal
 			class: "ez5-zooniverse-importer-modal"
@@ -219,6 +238,8 @@ class ZooniverseImport extends CUI.Element
 			# 		},
 			# 		"new_total": 130
 			# 	},
+			# 	"events": [],
+			# 	"updated": {...}
 			# 	...
 			# }
 
@@ -226,7 +247,14 @@ class ZooniverseImport extends CUI.Element
 			if result?.count?.new_total > 0 or result?.count?.updated_total > 0
 				@__importButton.enable()
 
+			# save events from response, only write events after import was successful
+			@__events = result?.events
+
 		.fail (result, status, xhr) =>
+			@__importButton.disable()
+
 			console.log "zooniverse_import error:", result
+			# todo: save ZOONIVERSE_IMPORT_ERROR event
+
 			# CUI.problem() is not necessary, plugin returns a parsable error (error.user.zooniverse_import)
 
