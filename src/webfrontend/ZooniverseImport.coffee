@@ -121,6 +121,12 @@ class ZooniverseImport extends CUI.Element
 			onClick: =>
 				@__parseCSV()
 
+		@__overviewText = new CUI.MultilineLabel
+			text: "Import Overview"
+			markdown: true
+			class: "ez5-zooniverse-importer-log-label"
+		@__overviewText.hide()
+
 		@__modalContent = new CUI.VerticalList
 			class: "ez5-zooniverse-importer-list"
 			content: [
@@ -135,37 +141,60 @@ class ZooniverseImport extends CUI.Element
 						@__importButton.disable()
 			,
 				@__parseButton
+			,
+				@__overviewText
 			]
 
 		@__importButton = new CUI.Button
 			text: $$("zooniverse.importer.import_button.label")
 			primary: true
 			disabled: true
-			onClick: => # xxx
+			onClick: =>
 
-				# todo import generated objects (like in JSON importer):
-				#
-				# objects from 'new' must be imported first (they are created as new linked objects)
-				# for each objecttype, the objects must be posted to api/v1/db/<linked_objecttype>
-				#
-				# objects from 'updated' must be imported after this, so they can reference the new linked objects
-				# these main objects are updated objects that are referenced by the signature (based on base config settings)
-				#
-				# response from endpoint looks like this:
-				# {
-				# 	"count": {...},
-				# 	"events": [],
-				# 	"updated": {
-				# 		"<main_objecttype_1>": []
-				# 	},
-				# 	"new": {
-				# 		"<linked_objecttype_1>": [],
-				# 		"<linked_objecttype_2>": []
-				# 	}
-				# }
+				if not @__parsedData
+					return
 
-				# todo: after import was successful, write events to event log -> call @__log_events()
-
+				newObjectPromises = []
+				failedImportsObjecttypes = []
+				updatedObjectPromises = []
+				# ez5 can handle multiple objecttypes post in parallel?
+				for ot_name, objects of @__parsedData["new"]
+					do(ot_name) =>
+						newObjectPromises.push(
+							CUI.chunkWork.call(@,
+								items: objects
+								chunk_size: 1000
+								call: (items) =>
+									return ez5.api.db(
+										type: "POST"
+										api: '/'+ot_name
+										json_data: items
+									)
+							).fail( =>
+								failedImportsObjecttypes.push(ot_name)
+							)
+					)
+				CUI.whenAll(newObjectPromises).done( =>
+					for ot_name, objects of @__parsedData["updated"]
+						do(ot_name) =>
+							updatedObjectPromises.push(
+								CUI.chunkWork.call(@,
+									items: objects
+									chunk_size: 1000
+									call: (items) =>
+										return ez5.api.db(
+											type: "POST"
+											api: '/'+ot_name
+											json_data: items
+										)
+								).fail( =>
+									failedImportsObjecttypes.push(ot_name)
+								)
+							)
+						CUI.whenAll(updatedObjectPromises).done(=>
+							CUI.alert(markdown: true, text: "Import Success!")
+						)
+				)
 
 		@__modal = new CUI.Modal
 			class: "ez5-zooniverse-importer-modal"
@@ -217,31 +246,35 @@ class ZooniverseImport extends CUI.Element
 				columns_by_id: @__columns_by_id
 
 		.done (result, status, xhr) =>
-			console.log "zooniverse_import overview:", result?.count
+			if result?.count
 
-			# todo: show overview in text area (from 'count')
-			#
-			# or show a warning if no objects were parsed
-			#
-			# response from endpoint looks like this:
-			# {
-			# 	"count": {
-			# 		"parsed_rows": 134,
-			# 		"parsed_objs": 112,
-			# 		"updated": {
-			# 			"<main_objecttype_1>": 110
-			# 		},
-			# 		"updated_total": 110,
-			# 		"new": {
-			# 			"<linked_objecttype_1>": 50,
-			# 			"<linked_objecttype_2>": 80
-			# 		},
-			# 		"new_total": 130
-			# 	},
-			# 	"events": [],
-			# 	"updated": {...}
-			# 	...
-			# }
+				@__parsedData = result;
+
+				logText = "#{$$("zooniverse.importer.log.header")} \n
+					#{$$("zooniverse.importer.log.parsed_rows")}: #{result.count.parsed_rows} \n
+					#{$$("zooniverse.importer.log.parsed_objects")} : #{result.count.parsed_objs} \n"
+
+				if not CUI.util.isEmpty(result.count["updated"])
+					updatedObjectsText = "**#{$$("zooniverse.importer.log.updated_objects")}** : \n"
+					for k, v of result.count["updated"]
+						updatedObjectsText += "\t #{k} : #{v} \n"
+					logText += updatedObjectsText
+
+				if not CUI.util.isEmpty(result.count["new"])
+					newObjectsText = "**#{$$("zooniverse.importer.log.new_objects")}** \n"
+					for k, v of result.count["new"]
+						newObjectsText += "\t #{k} : #{v} \n"
+					logText += newObjectsText
+
+				@__overviewText.setText(logText)
+				@__overviewText.show()
+
+				CUI.Events.trigger
+					node: @__modal
+					type: "content-resize"
+
+			else
+				CUI.alert(text: "No objects could be parsed.")
 
 			# only enable import button if there are objects to import
 			if result?.count?.new_total > 0 or result?.count?.updated_total > 0

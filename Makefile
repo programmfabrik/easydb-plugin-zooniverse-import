@@ -22,6 +22,7 @@ INSTALL_FILES = \
 	src/server/zooniverse.py \
 	manifest.yml
 
+#https://docs.google.com/spreadsheets/d/1glXObMmIUd0uXxdFdiPWRZPLCx6qEUaxDfNnmttave4/edit#gid=1425917363
 L10N_FILES = l10n/l10n.csv
 L10N_GOOGLE_KEY = 1glXObMmIUd0uXxdFdiPWRZPLCx6qEUaxDfNnmttave4
 L10N_GOOGLE_GID = 1425917363
