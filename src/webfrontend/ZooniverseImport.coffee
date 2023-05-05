@@ -155,11 +155,14 @@ class ZooniverseImport extends CUI.Element
 				if not @__parsedData
 					return
 
+				@__showSplash()
+
 				newObjectPromises = []
 				failedImportsObjecttypes = []
 				updatedObjectPromises = []
 
 				finishImport = =>
+					@__hideSplash()
 					if failedImportsObjecttypes.length > 0
 						CUI.alert(markdown: true, text: $$("zooniverse.importer.fail_text"))
 					else
@@ -320,5 +323,14 @@ class ZooniverseImport extends CUI.Element
 			EventPoller.saveEvent
 				type: "ZOONIVERSE_IMPORT_ERROR"
 				info: result
+
+	__showSplash: ->
+		if not @__waitBlock
+			@__waitBlock = new CUI.WaitBlock
+				element: @__modal.getPane()
+		@__waitBlock.show()
+
+	__hideSplash: ->
+		@__waitBlock?.hide()
 
 
