@@ -134,6 +134,8 @@ class ZooniverseImport extends CUI.Element
 			,
 				new CUI.FileUploadButton
 					fileUpload: @__getUploadFileReader()
+					accept: ".csv,.txt,.text,text/plain,/text/csv"
+					icon: "upload"
 					text: $$("zooniverse.importer.modal_content.upload_csv_button.label")
 					multiple: false
 					onClick: =>
@@ -161,6 +163,11 @@ class ZooniverseImport extends CUI.Element
 					if failedImportsObjecttypes.length > 0
 						CUI.alert(markdown: true, text: $$("zooniverse.importer.fail_text"))
 					else
+						if @__events?.length > 0
+							for event in @__events
+								EventPoller.saveEvent
+									type: event.type
+									info: event.info_json
 						CUI.alert(markdown: true, text: $$("zooniverse.importer.success_text"))
 						@clean()
 
@@ -251,7 +258,6 @@ class ZooniverseImport extends CUI.Element
 
 	__getUploadFileReader: ->
 		new CUI.FileReader
-			# todo: add extension filter for csv
 			onDone: (fileReader) =>
 				try
 					csv_data = new CUI.CSVData()
@@ -310,9 +316,9 @@ class ZooniverseImport extends CUI.Element
 
 		.fail (result, status, xhr) =>
 			@__importButton.disable()
-
 			console.log "zooniverse_import error:", result
-			# todo: save ZOONIVERSE_IMPORT_ERROR event
+			EventPoller.saveEvent
+				type: "ZOONIVERSE_IMPORT_ERROR"
+				info: result
 
-			# CUI.problem() is not necessary, plugin returns a parsable error (error.user.zooniverse_import)
 
