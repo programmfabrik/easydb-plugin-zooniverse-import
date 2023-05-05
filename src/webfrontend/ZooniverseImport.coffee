@@ -122,10 +122,9 @@ class ZooniverseImport extends CUI.Element
 				@__parseCSV()
 
 		@__overviewText = new CUI.MultilineLabel
-			text: "Import Overview"
+			text: ""
 			markdown: true
 			class: "ez5-zooniverse-importer-log-label"
-		@__overviewText.hide()
 
 		@__modalContent = new CUI.VerticalList
 			class: "ez5-zooniverse-importer-list"
@@ -157,27 +156,45 @@ class ZooniverseImport extends CUI.Element
 				newObjectPromises = []
 				failedImportsObjecttypes = []
 				updatedObjectPromises = []
-				# ez5 can handle multiple objecttypes post in parallel?
-				for ot_name, objects of @__parsedData["new"]
-					do(ot_name) =>
-						newObjectPromises.push(
-							CUI.chunkWork.call(@,
-								items: objects
-								chunk_size: 1000
-								call: (items) =>
-									return ez5.api.db(
-										type: "POST"
-										api: '/'+ot_name
-										json_data: items
+
+				finishImport = =>
+					if failedImportsObjecttypes.length > 0
+						CUI.alert(markdown: true, text: $$("zooniverse.importer.fail_text"))
+					else
+						CUI.alert(markdown: true, text: $$("zooniverse.importer.success_text"))
+						@clean()
+
+				importUpdates = =>
+					if @__parsedData["updated"]?.length == 0
+						finishImport()
+					else
+						for ot_name, objects of @__parsedData["updated"]
+							do(ot_name) =>
+								updatedObjectPromises.push(
+									CUI.chunkWork.call(@,
+										items: objects
+										chunk_size: 1000
+										call: (items) =>
+											return ez5.api.db(
+												type: "POST"
+												api: '/'+ot_name
+												json_data: items
+											)
+									).fail( =>
+										failedImportsObjecttypes.push(ot_name)
 									)
-							).fail( =>
-								failedImportsObjecttypes.push(ot_name)
-							)
-					)
-				CUI.whenAll(newObjectPromises).done( =>
-					for ot_name, objects of @__parsedData["updated"]
+								)
+						CUI.whenAll(updatedObjectPromises).done(=>
+							finishImport()
+						)
+
+				if not @__parsedData["new"].length == 0
+					importUpdates()
+				else
+					# ez5 can handle multiple objecttypes post in parallel?
+					for ot_name, objects of @__parsedData["new"]
 						do(ot_name) =>
-							updatedObjectPromises.push(
+							newObjectPromises.push(
 								CUI.chunkWork.call(@,
 									items: objects
 									chunk_size: 1000
@@ -190,11 +207,11 @@ class ZooniverseImport extends CUI.Element
 								).fail( =>
 									failedImportsObjecttypes.push(ot_name)
 								)
-							)
-						CUI.whenAll(updatedObjectPromises).done(=>
-							CUI.alert(markdown: true, text: "Import Success!")
 						)
-				)
+					CUI.whenAll(newObjectPromises).done( =>
+						importUpdates()
+					)
+
 
 		@__modal = new CUI.Modal
 			class: "ez5-zooniverse-importer-modal"
@@ -218,6 +235,19 @@ class ZooniverseImport extends CUI.Element
 			text: $$("zooniverse.importer.modal.confirm_cancel")
 		.done =>
 			@__modal.destroy()
+
+	clean: ->
+		@__setOverviewText("")
+		delete(@__csv_data)
+		@__parseButton.disable()
+		@__importButton.disable()
+
+	__setOverviewText: (text) ->
+		@__overviewText.setText(text)
+		CUI.Events.trigger
+			node: @__modal
+			type: "content-resize"
+
 
 	__getUploadFileReader: ->
 		new CUI.FileReader
@@ -266,12 +296,7 @@ class ZooniverseImport extends CUI.Element
 						newObjectsText += "\t #{k} : #{v} \n"
 					logText += newObjectsText
 
-				@__overviewText.setText(logText)
-				@__overviewText.show()
-
-				CUI.Events.trigger
-					node: @__modal
-					type: "content-resize"
+				@__setOverviewText(logText)
 
 			else
 				CUI.alert(text: "No objects could be parsed.")
