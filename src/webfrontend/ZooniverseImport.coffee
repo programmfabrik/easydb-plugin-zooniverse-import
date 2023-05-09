@@ -289,21 +289,22 @@ class ZooniverseImport extends CUI.Element
 
 				@__parsedData = result;
 
-				logText = "#{$$("zooniverse.importer.log.header")} \n
-					#{$$("zooniverse.importer.log.parsed_rows")}: #{result.count.parsed_rows} \n
-					#{$$("zooniverse.importer.log.parsed_objects")} : #{result.count.parsed_objs} \n"
+				logText = "**#{$$("zooniverse.importer.log.header")}**\n* #{$$("zooniverse.importer.log.parsed_rows")}: #{result.count.parsed_rows}\n* #{$$("zooniverse.importer.log.parsed_objects")}: #{result.count.parsed_objs}\n"
 
 				if not CUI.util.isEmpty(result.count["updated"])
-					updatedObjectsText = "**#{$$("zooniverse.importer.log.updated_objects")}** : \n"
+					updatedObjectsText = "\n**#{$$("zooniverse.importer.log.updated_objects")}**\n"
 					for k, v of result.count["updated"]
-						updatedObjectsText += "\t #{k} : #{v} \n"
+						updatedObjectsText += "* #{k}: #{v}\n"
 					logText += updatedObjectsText
 
-				if not CUI.util.isEmpty(result.count["new"])
-					newObjectsText = "**#{$$("zooniverse.importer.log.new_objects")}** \n"
-					for k, v of result.count["new"]
-						newObjectsText += "\t #{k} : #{v} \n"
-					logText += newObjectsText
+					if not CUI.util.isEmpty(result.count["new"])
+						newObjectsText = "\n**#{$$("zooniverse.importer.log.new_objects")}**\n"
+						for k, v of result.count["new"]
+							newObjectsText += "* #{k}: #{v}\n"
+						logText += newObjectsText
+
+				else
+					logText += "\n**#{$$("zooniverse.importer.log.no_updated_objects")}**\n"
 
 				@__setOverviewText(logText)
 

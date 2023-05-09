@@ -21,7 +21,7 @@ server.config.parameter.system.zooniverse_import.api_session_token.label,Token,F
 server.config.parameter.system.zooniverse_import.api_session_token.label|hint,"optional, wird ignoriert wenn Login und Passwort gesetzt sind",FALSE,"optional, is ignored if Login and Password are set",FALSE,,FALSE,"valinnainen, ohitetaan, jos käyttäjätunnus ja salasana on asetettu",FALSE,,FALSE,"facultatif, est ignoré si le nom d'utilisateur et le mot de passe sont définis",FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE
 server.config.parameter.system.zooniverse_import.api_user.label,Login,FALSE,Login,FALSE,,FALSE,Käyttäjätunnus,FALSE,,FALSE,Connexion,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE
 zooniverse_import.app.label,Zooniverse Import,FALSE,Zooniverse Import,FALSE,,FALSE,Zooniverse tuonti,FALSE,,FALSE,Zooniverse Import,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE
-server.config.name.system.zooniverse_import_mappings,Zuordnungen zwischen Objekten und Daten aus Zooniverse,FALSE,Mapping between records and Zooniverse data,FALSE,,FALSE,,FALSE,,FALSE,Mappage entre les enregistrements et les données de Zooniverse,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE
+server.config.name.system.zooniverse_import_mappings,Zuordnungen zwischen Datensätzen und Daten aus Zooniverse,FALSE,Mapping between records and Zooniverse data,FALSE,,FALSE,,FALSE,,FALSE,Mappage entre les enregistrements et les données de Zooniverse,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE
 server.config.parameter.system.zooniverse_import_mappings.mappings.label,-,FALSE,-,FALSE,-,FALSE,-,FALSE,-,FALSE,-,FALSE,-,FALSE,-,FALSE,-,FALSE,-,FALSE,-,FALSE
 server.config.parameter.system.zooniverse_import_mappings.enabled.checkbox,Zuordnung aktiviert,FALSE,Mapping enabled,FALSE,,FALSE,,FALSE,,FALSE,Mappage activé,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE
 server.config.parameter.system.zooniverse_import_mappings.mappings.enabled.label,-,FALSE,-,FALSE,-,FALSE,-,FALSE,-,FALSE,-,FALSE,-,FALSE,-,FALSE,-,FALSE,-,FALSE,-,FALSE
@@ -51,8 +51,11 @@ server.config.parameter.system.zooniverse_import.mappings.update_column_user_nam
 server.config.parameter.system.zooniverse_import.mappings.update_column_user_name.label|hint,Zielfeld für den Wert aus der CSV-Spalte `user_name`,FALSE,Target field for the value of CSV column `user_name`,FALSE,,FALSE,,FALSE,,FALSE,Champ cible pour la valeur de la colonne CSV `user_name`,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE
 acl.right.manager.group.system.zooniverse_import,Zooniverse Import,FALSE,Zooniverse Import,FALSE,,FALSE,,FALSE,,FALSE,Importation de zoounivers,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE
 server.right.system.plugin.easydb-plugin-zooniverse-import.allow_use,Zooniverse Import benutzen,FALSE,Use Zooniverse Import,FALSE,,FALSE,,FALSE,,FALSE,Utiliser l'importation de Zoouniverse,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE
-zooniverse.importer.log.header,**Import Overview**,TRUE,**Import Overview**,TRUE,**Import Overview**,TRUE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE
-zooniverse.importer.log.parsed_rows,Parsed Rows,TRUE,Parsed Rows,TRUE,Parsed Rows,TRUE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE
-zooniverse.importer.log.parsed_objects,Parsed Objects,TRUE,Parsed Objects,TRUE,Parsed Objects,TRUE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE
-zooniverse.importer.log.updated_objects,Updated Objects,TRUE,Updated Objects,TRUE,Updated Objects,TRUE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE
-zooniverse.importer.log.new_objects,New Objects,TRUE,New Objects,TRUE,New Objects,TRUE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE,,FALSE
+zooniverse.importer.log.header,Import Übersicht,TRUE,Import Overview,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE
+zooniverse.importer.log.parsed_rows,Gelesene Zeilen in der CSV Datei,TRUE,Parsed Rows,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE
+zooniverse.importer.log.parsed_objects,Gelesene Datensätze,TRUE,Parsed Records,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE
+zooniverse.importer.log.updated_objects,Zu aktualisierende Datensätze,TRUE,Updated Records,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE
+zooniverse.importer.log.no_updated_objects,"In der CSV Datei konnten keine Daten gefunden werden, die sich mit Datensätzen in der easydb abgleichen lassen!",TRUE,There are no entries in the CSV file that match any of the records in the easydb!,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE
+zooniverse.importer.log.new_objects,Neu anzulegende Datensätze,TRUE,New Records,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE
+zooniverse.importer.fail_text,"Beim Import der Datensätze gab es Fehler. Bitte prüfen Sie die Ereignisse, um weitere Details zu erfahren.",TRUE,There were errors during the import. Please check the Event Log.,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE
+zooniverse.importer.success_text,Die Datensätze wurden erfolgreich importiert und aktualisiert.,TRUE,The records were imported and updated successfully.,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE,,TRUE

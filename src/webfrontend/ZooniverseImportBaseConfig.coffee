@@ -16,10 +16,6 @@ class ZooniverseImportBaseConfig extends BaseConfigPlugin
                     "ez5-version-column"
                 ]
 
-        # todo: the filter does not work 100% correct yet
-        # for linked objects there is also always the Object ID which is invalid
-        # and must NOT be part of the dropdown menus in the base config
-
         filterTextField = (field, data, parentField) ->
             return __isObjectField(field, data, parentField) and field instanceof TextColumn
 
