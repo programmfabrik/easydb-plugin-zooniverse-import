@@ -58,6 +58,40 @@ def build_recursive_entry(path, fieldname, value, unique_linked_object_values, l
 
 
 @util.handle_exceptions
+def is_in_nested(entry, nested: list, linked_ot_path: dict, logger) -> bool:
+    # direct match for simple values (strings, dicts) in list
+
+    if entry in nested:
+        return True
+
+    # complex match, necessary to compare newly created linked objects and existing linked objects (dicts are not equal)
+
+    if not 'name' in linked_ot_path:
+        return False
+    if not 'objecttype' in linked_ot_path:
+        return False
+
+    name = linked_ot_path['name']
+    ot = linked_ot_path['objecttype']
+
+    lookup = util.get_json_value(entry, '{0}.{1}.lookup:_id'.format(name, ot))
+    if len(lookup) != 1:
+        return False
+
+    value = lookup[list(lookup.keys())[0]]
+
+    for e in nested:
+        standard = util.get_json_value(e, '{0}._standard.1.text'.format(name))
+        if not isinstance(standard, dict):
+            continue
+        for lang in standard:
+            if standard[lang] == value:
+                return True
+
+    return False
+
+
+@util.handle_exceptions
 def apply(obj, unique_linked_object_values, mapping, column_name, value, logger, signatur, languages):
     if value is None:
         return None
@@ -151,8 +185,9 @@ def apply(obj, unique_linked_object_values, mapping, column_name, value, logger,
             if not isinstance(entry, list):
                 entry = [entry]
             for e in entry:
-                if e in obj[entry_fieldname]:
+                if is_in_nested(e, obj[entry_fieldname], path[-1], logger):
                     continue
+
                 obj[entry_fieldname].append(e)
                 logger.debug('[mapping.apply] [{0}] appended to {1}: {2}'.format(signatur, entry_fieldname, e))
             continue
