@@ -93,8 +93,9 @@ def parse_annotations(annotations, logger):
             if answer == '':
                 continue
             parsed_annotations[question] = answer
+            continue
 
-        elif isinstance(answer, list):
+        if isinstance(answer, list):
             answers = []
 
             for v in answer:
@@ -111,9 +112,10 @@ def parse_annotations(annotations, logger):
 
             if len(answers) > 0:
                 parsed_annotations[question] = answers
+                continue
 
-        else:
-            continue
+    if parsed_annotations == {}:
+        return None
 
     return parsed_annotations
 
@@ -157,16 +159,18 @@ def parse_data(data, logger):
         if signatur is None:
             continue
 
+        valid_rows += 1
+
         # parse answers from annotations
         answers = parse_annotations(annotations, logger)
+        if answers is None:
+            continue
 
         if not signatur in collected_objects:
             collected_objects[signatur] = {}
         if not user_name in collected_objects[signatur]:
             collected_objects[signatur][user_name] = {}
         collected_objects[signatur][user_name][created_at] = answers
-
-        valid_rows += 1
 
     logger.info('parsed {0} objects from {1} csv rows'.format(len(collected_objects), valid_rows))
 
