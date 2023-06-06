@@ -133,6 +133,7 @@ def parse_data(data, logger):
 
     collected_objects = {}
     valid_rows = 0
+    empty_annotation_rows = 0
 
     for row in csv_data:
         if len(row) < 1:
@@ -164,6 +165,7 @@ def parse_data(data, logger):
         # parse answers from annotations
         answers = parse_annotations(annotations, logger)
         if answers is None:
+            empty_annotation_rows += 1
             continue
 
         if not signatur in collected_objects:
@@ -172,7 +174,8 @@ def parse_data(data, logger):
             collected_objects[signatur][user_name] = {}
         collected_objects[signatur][user_name][created_at] = answers
 
-    logger.info('parsed {0} objects from {1} csv rows'.format(len(collected_objects), valid_rows))
+    logger.info('parsed {0} objects from {1} csv rows. skipped {2} rows with empty annotations'.format(
+        len(collected_objects), valid_rows, empty_annotation_rows))
 
     return collected_objects, {
         'count': {

@@ -4,6 +4,23 @@ import json
 import sys
 import traceback
 import re
+from datetime import datetime, timedelta
+
+
+__times = {}
+
+
+def time_now(k):
+    __times[k] = datetime.now()
+    return __times[k]
+
+
+def time_diff(k):
+    if k not in __times:
+        return None
+
+    sec = timedelta.total_seconds(datetime.now() - __times[k])
+    return sec * 1000.0
 
 
 def handle_exceptions(func):
@@ -217,7 +234,7 @@ def create_new_linked_objects(easydb_context, unique_linked_object_values, logge
 
         for match_column in unique_linked_object_values[objecttype]:
             unique_values = unique_linked_object_values[objecttype][match_column]
-            logger.debug('[create_new_linked_objects] field: {0}.{1}, values: {2}'.format(objecttype, match_column, unique_values))
+            # logger.debug('[create_new_linked_objects] field: {0}.{1}, values: {2}'.format(objecttype, match_column, unique_values))
 
             existing_objects = load_objects_by_signature(
                 easydb_context,
@@ -226,7 +243,7 @@ def create_new_linked_objects(easydb_context, unique_linked_object_values, logge
                 unique_values,
                 logger
             )
-            logger.debug('[create_new_linked_objects] existing objects for values: {0}' .format(existing_objects.keys()))
+            # logger.debug('[create_new_linked_objects] existing objects for values: {0}' .format(existing_objects.keys()))
 
             # for all unique values, skip those which are found and create new objects for all missing values
             for v in unique_values:

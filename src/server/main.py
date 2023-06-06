@@ -23,9 +23,24 @@ def easydb_server_start(easydb_context):
 
 def api_zooniverse_import(easydb_context, parameters):
     logger = easydb_context.get_logger(PLUGIN_NAME)
+    start_all = util.time_now('start_all')
 
     try:
+        util.time_now('start_parse_data')
         collected_objects, stats = zooniverse.parse_data(parameters['body'], logger)
+
+        stats['updated'] = {}
+        stats['new'] = {}
+        stats['times'] = {
+            'start': str(start_all),
+            'parse_data': util.time_diff('start_parse_data')
+        }
+        stats['count']['new'] = {}
+        stats['count']['new_total'] = 0
+        stats['count']['updated'] = {}
+        stats['count']['updated_total'] = 0
+        stats['events'] = []
+
         if not isinstance(collected_objects, dict):
             return util.json_error_response('could not parse body', logger)
         if collected_objects == {}:
@@ -46,16 +61,9 @@ def api_zooniverse_import(easydb_context, parameters):
         mappings = util.load_mappings(config, columns_by_id, logger)
         logger.debug('mappings: ' + util.dumpjs(mappings))
 
-        stats['updated'] = {}
-        stats['new'] = {}
-        stats['count']['new'] = {}
-        stats['count']['new_total'] = 0
-        stats['count']['updated'] = {}
-        stats['count']['updated_total'] = 0
-        stats['events'] = []
-
         unique_linked_object_values = {}
 
+        util.time_now('start_apply_mapping')
         for objecttype in mappings:
             ot_mapping = mappings[objecttype]
             match_column = util.get_json_value(ot_mapping, 'match_column')
@@ -165,6 +173,9 @@ def api_zooniverse_import(easydb_context, parameters):
             event['info_json']['objects'] = sorted(event['info_json']['objects'], key=lambda o: o['_id'])
             stats['events'].append(event)
 
+        stats['times']['apply_mapping'] = util.time_diff('start_apply_mapping')
+
+        util.time_now('start_create_new_linked_objects')
         new_linked_objects, count_new = util.create_new_linked_objects(
             easydb_context,
             unique_linked_object_values,
@@ -173,6 +184,7 @@ def api_zooniverse_import(easydb_context, parameters):
         )
         stats['new'] = new_linked_objects
         stats['count']['new'] = count_new
+        stats['times']['create_new_linked_objects'] = util.time_diff('start_create_new_linked_objects')
 
         for objecttype in unique_linked_object_values:
             event = {
@@ -194,6 +206,11 @@ def api_zooniverse_import(easydb_context, parameters):
         for ot in count_new:
             count_new_total += count_new[ot]
         stats['count']['new_total'] = count_new_total
+
+        stats['times']['total'] = util.time_diff('start_all')
+
+        logger.debug('overview: count: {0}'.format(util.dumpjs(stats['count'])))
+        logger.debug('overview: times: {0}'.format(util.dumpjs(stats['times'])))
 
         return util.json_response(stats, minify=True)
 

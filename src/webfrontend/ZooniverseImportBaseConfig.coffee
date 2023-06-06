@@ -1,6 +1,10 @@
 class ZooniverseImportBaseConfig extends BaseConfigPlugin
     getFieldDefFromParm: (baseConfig, fieldName, def) ->
 
+        @key_prefix = "server.config.parameter.system.zooniverse_import.mappings."
+        @key_label_suffix = ".label"
+        @key_hint_suffix = ".label|hint"
+
         sort = (a, b) ->
             return a.text.localeCompare(b.text)
 
@@ -37,8 +41,8 @@ class ZooniverseImportBaseConfig extends BaseConfigPlugin
         if def.plugin_type == "update_objecttype"
             field = new ez5.ObjecttypeSelector
                 form:
-                    label: $$("server.config.parameter.system.zooniverse_import.mappings." + def.plugin_type + ".label")
-                    hint:  $$("server.config.parameter.system.zooniverse_import.mappings." + def.plugin_type + ".label|hint")
+                    label: $$(@key_prefix + def.plugin_type + @key_label_suffix)
+                    hint:  $$(@key_prefix + def.plugin_type + @key_hint_suffix)
                 name: fieldName
                 show_name: true
                 store_value: "fullname"
@@ -58,8 +62,8 @@ class ZooniverseImportBaseConfig extends BaseConfigPlugin
         if def.plugin_type == "match_column"
             field = new ez5.FieldSelector
                 form:
-                    label: $$("server.config.parameter.system.zooniverse_import.mappings." + def.plugin_type + ".label")
-                    hint:  $$("server.config.parameter.system.zooniverse_import.mappings." + def.plugin_type + ".label|hint")
+                    label: $$(@key_prefix + def.plugin_type + @key_label_suffix)
+                    hint:  $$(@key_prefix + def.plugin_type + @key_hint_suffix)
                 name: fieldName
                 objecttype_data_key: "update_objecttype"
                 store_value: "fullname"
@@ -72,8 +76,8 @@ class ZooniverseImportBaseConfig extends BaseConfigPlugin
         if def.plugin_type == "update_column_user_name"
             field = new ez5.FieldSelector
                 form:
-                    label: $$("server.config.parameter.system.zooniverse_import.mappings." + def.plugin_type + ".label")
-                    hint:  $$("server.config.parameter.system.zooniverse_import.mappings." + def.plugin_type + ".label|hint")
+                    label: $$(@key_prefix + def.plugin_type + @key_label_suffix)
+                    hint:  $$(@key_prefix + def.plugin_type + @key_hint_suffix)
                 name: fieldName
                 objecttype_data_key: "update_objecttype"
                 store_value: "id"
@@ -86,8 +90,8 @@ class ZooniverseImportBaseConfig extends BaseConfigPlugin
         if def.plugin_type == "update_column_created_at"
             field = new ez5.FieldSelector
                 form:
-                    label: $$("server.config.parameter.system.zooniverse_import.mappings." + def.plugin_type + ".label")
-                    hint:  $$("server.config.parameter.system.zooniverse_import.mappings." + def.plugin_type + ".label|hint")
+                    label: $$(@key_prefix + def.plugin_type + @key_label_suffix)
+                    hint:  $$(@key_prefix + def.plugin_type + @key_hint_suffix)
                 name: fieldName
                 objecttype_data_key: "update_objecttype"
                 store_value: "id"
@@ -100,8 +104,8 @@ class ZooniverseImportBaseConfig extends BaseConfigPlugin
         if def.plugin_type.startsWith("update_column_")
             field = new ez5.FieldSelector
                 form:
-                    label: $$("server.config.parameter.system.zooniverse_import.mappings." + def.plugin_type + ".label")
-                    hint:  $$("server.config.parameter.system.zooniverse_import.mappings." + def.plugin_type + ".label|hint")
+                    label: $$(@key_prefix + def.plugin_type + @key_label_suffix)
+                    hint:  $$(@key_prefix + def.plugin_type + @key_hint_suffix)
                 name: fieldName
                 objecttype_data_key: "update_objecttype"
                 store_value: "id"

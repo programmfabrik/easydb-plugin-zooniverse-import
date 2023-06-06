@@ -56,36 +56,44 @@ base_config:
             type: bool
             position: 4
 
+          - name: update_column_t1
+            type: text
+            plugin_type: update_column_t1
+            position: 5
+          - name: split_update_column_t1
+            type: bool
+            position: 6
+
           - name: update_column_t2
             type: text
             plugin_type: update_column_t2
-            position: 5
+            position: 7
           - name: split_update_column_t2
             type: bool
-            position: 6
+            position: 8
 
           - name: update_column_t3
             type: text
             plugin_type: update_column_t3
-            position: 7
+            position: 9
           - name: split_update_column_t3
             type: bool
-            position: 8
+            position: 10
 
           - name: update_column_t4
             type: text
             plugin_type: update_column_t4
-            position: 9
+            position: 11
           - name: split_update_column_t4
             type: bool
-            position: 10
+            position: 12
 
           - name: update_column_created_at
             type: text
             plugin_type: update_column_created_at
-            position: 11
+            position: 13
 
           - name: update_column_user_name
             type: text
             plugin_type: update_column_user_name
-            position: 12
+            position: 14

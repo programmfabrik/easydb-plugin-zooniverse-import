@@ -157,7 +157,7 @@ def apply(obj, unique_linked_object_values, mapping, column_name, value, logger,
             _fv.append(util.format_date(value))
         formatted_value = _fv
 
-    logger.debug('[mapping.apply] [{0}] value: {1} => formatted: {2}'.format(signatur, value, formatted_value))
+    # logger.debug('[mapping.apply] [{0}] value: {1} => formatted: {2}'.format(signatur, value, formatted_value))
 
     if len(formatted_value) < 1:
         return None
