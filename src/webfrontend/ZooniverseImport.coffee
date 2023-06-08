@@ -119,7 +119,7 @@ class ZooniverseImport extends CUI.Element
 			text: $$("zooniverse.importer.modal_content.parse_csv_button.label")
 			disabled: true
 			onClick: =>
-				@__parseCSV()
+				@__parseCSVBatched()
 
 		@__overviewText = new CUI.MultilineLabel
 			text: ""
@@ -269,10 +269,94 @@ class ZooniverseImport extends CUI.Element
 					)
 					.done =>
 						@__csv_data = csv_data.rows
+						@__prepareData(csv_data.rows)
 						@__parseButton.enable()
 				catch
 					CUI.problem(text: "Error")
 					return
+
+	__prepareData: (rows) ->
+
+		subject_data_index = rows[0].findIndex((el) => el == "subject_data")
+		if subject_data_index == -1
+			return
+
+		@__preparseData =
+			csvHeader : rows[0]
+			dataPerSignature: {}
+			rowsCount : 0
+
+		rows.splice(0,1)
+		getSignature = (row) ->
+			try
+				jsonString  = row[subject_data_index]?.replace(/['`]/g, '"')
+				subjectData = JSON.parse(jsonString)
+			catch e
+				console.error(e)
+			if not subjectData
+				return
+			for k,v of subjectData
+				return v["Filename"]?.replace(/\.[^.]+$/, '');
+		 return null
+
+		for row in rows
+			signature = getSignature(row)
+			if not signature
+				continue
+			@__preparseData.dataPerSignature[signature] ?= []
+			@__preparseData.dataPerSignature[signature].push(row)
+			@__preparseData.rowsCount++
+
+		return
+
+	__parseCSVBatched: ->
+		url = ez5.pluginManager.getPlugin("easydb-plugin-zooniverse-import").getPluginURL()
+		parseAndMergeData = (batch) =>
+			dfr = new CUI.Deferred()
+			ez5.server(
+				local_url: url+"/zooniverse_import"
+				type: "POST"
+				add_token: true
+				json_data:
+					csv: batch[0]
+					columns_by_id: @__columns_by_id
+			)
+			.fail(dfr.reject)
+			.done( (result, status, xhr) =>
+				if not @__parsedData
+					# We dont have parseData we use the returned by the server
+					@__parsedData = result
+				else
+					# We have parsed data already, we must merge it.
+					for objecttype, updatedObjects of result["updated"]
+							actualObjects = @__parsedData["updated"]?[objecttype]
+							@__parsedData["updated"][objecttype] = if actualObjects then actualObjects.concat(updatedObjects) else updatedObjects
+					for objecttype, newObjects of result["new"]
+						# TODO : make the merge of new parsed data
+
+				dfr.resolve()
+			)
+			return dfr.promise()
+
+		parseBatches = [[@__preparseData.csvHeader]]
+		batchIdx = 0
+		for signature, rows of @__preparseData.dataPerSignature
+			if parseBatches[batchIdx].length > 1000 or parseBatches[batchIdx].length + rows.length > 1000
+				batchIdx++
+				parseBatches[batchIdx] = [@__preparseData.csvHeader]
+			parseBatches[batchIdx] = parseBatches[batchIdx].concat(rows)
+
+		totalCount = 0
+		CUI.chunkWork.call(@,
+			items: parseBatches
+			chunk_size: 1
+			call: (batch) =>
+				return parseAndMergeData(batch)
+		).fail( =>
+
+		)
+		return
+
 
 	__parseCSV: ->
 		url = ez5.pluginManager.getPlugin("easydb-plugin-zooniverse-import").getPluginURL()
