@@ -3,7 +3,7 @@
 import util
 
 
-def linked_object(elem, fieldname, value, unique_linked_object_values):
+def __linked_object(elem, fieldname, value, unique_linked_object_values):
     link_ot = util.get_json_value(elem, 'objecttype')
     if not isinstance(link_ot, str) or len(link_ot) < 1:
         raise Exception('invalid path: link.objecttype invalid: ' + str(link_ot))
@@ -26,8 +26,7 @@ def linked_object(elem, fieldname, value, unique_linked_object_values):
     }
 
 
-@util.handle_exceptions
-def build_recursive_entry(path, fieldname, value, unique_linked_object_values, logger):
+def __build_recursive_entry(path, fieldname, value, unique_linked_object_values, logger=None):
 
     if fieldname is None or len(fieldname) < 1:
         return None, None
@@ -44,21 +43,20 @@ def build_recursive_entry(path, fieldname, value, unique_linked_object_values, l
 
     if path_type == 'link':
         try:
-            link = linked_object(elem, fieldname, value, unique_linked_object_values)
+            link = __linked_object(elem, fieldname, value, unique_linked_object_values)
             return link, path_name
         except Exception as e:
-            logger.warn('mapping: could not create link: ' + str(e))
+            util.warn('mapping: could not create link: ' + str(e), logger)
             return None, None
 
     if path_type == '_nested':
-        sub_elem, sub_name = build_recursive_entry(path[1:], fieldname, value, unique_linked_object_values, logger)
+        sub_elem, sub_name = __build_recursive_entry(path[1:], fieldname, value, unique_linked_object_values, logger)
         return [{sub_name: sub_elem}], path_type + ':' + path_name
 
     raise Exception('invalid path type ' + str(path_type))
 
 
-@util.handle_exceptions
-def is_in_nested(entry, nested: list, linked_ot_path: dict, logger) -> bool:
+def __is_in_nested(entry, nested: list, linked_ot_path: dict, logger=None) -> bool:
     # direct match for simple values (strings, dicts) in list
 
     if entry in nested:
@@ -91,8 +89,7 @@ def is_in_nested(entry, nested: list, linked_ot_path: dict, logger) -> bool:
     return False
 
 
-@util.handle_exceptions
-def apply(obj, unique_linked_object_values, mapping, column_name, value, logger, signatur, languages):
+def apply(obj, unique_linked_object_values, mapping, column_name, value, signatur, languages, logger=None):
     if value is None:
         return None
 
@@ -157,7 +154,7 @@ def apply(obj, unique_linked_object_values, mapping, column_name, value, logger,
             _fv.append(util.format_date(value))
         formatted_value = _fv
 
-    # logger.debug('[mapping.apply] [{0}] value: {1} => formatted: {2}'.format(signatur, value, formatted_value))
+    # util.debug('[mapping.apply] [{0}] value: {1} => formatted: {2}'.format(signatur, value, formatted_value),logger)
 
     if len(formatted_value) < 1:
         return None
@@ -165,19 +162,19 @@ def apply(obj, unique_linked_object_values, mapping, column_name, value, logger,
     if len(path) < 1:
         # simple field on top level of the object
         obj[fieldname] = formatted_value[0]
-        logger.debug('[mapping.apply] [{0}] inserted/replaced {1}: {2}'.format(signatur, fieldname, obj[fieldname]))
+        util.debug('[mapping.apply] [{0}] inserted/replaced {1}: {2}'.format(signatur, fieldname, obj[fieldname]), logger)
         return fieldname
 
     # field is in path (nested tables and/or linked objects)
     for v in formatted_value:
-        entry, entry_fieldname = build_recursive_entry(path, fieldname, v, unique_linked_object_values, logger)
+        entry, entry_fieldname = __build_recursive_entry(path, fieldname, v, unique_linked_object_values, logger)
         if entry is None:
             return entry_fieldname
 
         # insert new value
         if not entry_fieldname in obj:
             obj[entry_fieldname] = entry
-            logger.debug('[mapping.apply] [{0}] inserted {1} with {2}'.format(signatur, entry_fieldname, entry))
+            util.debug('[mapping.apply] [{0}] inserted {1} with {2}'.format(signatur, entry_fieldname, entry), logger)
             continue
 
         # check the existing value (nested vs. single value)
@@ -185,11 +182,11 @@ def apply(obj, unique_linked_object_values, mapping, column_name, value, logger,
             if not isinstance(entry, list):
                 entry = [entry]
             for e in entry:
-                if is_in_nested(e, obj[entry_fieldname], path[-1], logger):
+                if __is_in_nested(e, obj[entry_fieldname], path[-1], logger):
                     continue
 
                 obj[entry_fieldname].append(e)
-                logger.debug('[mapping.apply] [{0}] appended to {1}: {2}'.format(signatur, entry_fieldname, e))
+                util.debug('[mapping.apply] [{0}] appended to {1}: {2}'.format(signatur, entry_fieldname, e), logger)
             continue
 
     return entry_fieldname

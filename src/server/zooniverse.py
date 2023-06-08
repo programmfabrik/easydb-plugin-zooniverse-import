@@ -2,12 +2,10 @@
 
 from datetime import datetime
 import json
-import csv
 import util
 
 
-@util.handle_exceptions
-def parse_row(row, header_ids, logger):
+def __parse_row(row, header_ids):
 
     if len(row) < 1:
         return None, None, None, None
@@ -41,19 +39,19 @@ def parse_row(row, header_ids, logger):
         created_at_d = datetime.strptime(row[idx_created_at].strip(), '%Y-%m-%d %H:%M:%S %Z')
         created_at = created_at_d.strftime('%Y-%m-%dT%H:%M:%S+0:00')
     except Exception as e:
-        logger.warn('ERROR: ' + str(e))
+        print(e)
 
     try:
         annotations = json.loads(row[idx_annotations].replace('`', '"'))
         subject_data = json.loads(row[idx_subject_data].replace('`', '"'))
         return annotations, subject_data, row[idx_user_name].strip(), created_at
     except Exception as e:
-        logger.warn('ERROR: ' + str(e))
+        print(e)
 
     return None, None, None, None
 
 
-def parse_subject_data(subject_data, logger):
+def __parse_subject_data(subject_data) -> str:
     if not isinstance(subject_data, dict):
         return None
 
@@ -71,7 +69,7 @@ def parse_subject_data(subject_data, logger):
     return None
 
 
-def parse_annotations(annotations, logger):
+def __parse_annotations(annotations) -> dict:
     if not isinstance(annotations, list):
         return None
 
@@ -120,7 +118,7 @@ def parse_annotations(annotations, logger):
     return parsed_annotations
 
 
-def parse_data(data, logger):
+def parse_data(data, logger=None) -> dict:
     if data is None:
         raise Exception('no valid zooniverse csv data!')
 
@@ -145,7 +143,7 @@ def parse_data(data, logger):
                 header_ids[row[i]] = i
             continue
 
-        annotations, subject_data, user_name, created_at = parse_row(row, header_ids, logger)
+        annotations, subject_data, user_name, created_at = __parse_row(row, header_ids)
         if annotations is None:
             continue
         if subject_data is None:
@@ -156,14 +154,14 @@ def parse_data(data, logger):
             created_at = None
 
         # parse signatur from subject_data
-        signatur = parse_subject_data(subject_data, logger)
+        signatur = __parse_subject_data(subject_data)
         if signatur is None:
             continue
 
         valid_rows += 1
 
         # parse answers from annotations
-        answers = parse_annotations(annotations, logger)
+        answers = __parse_annotations(annotations)
         if answers is None:
             empty_annotation_rows += 1
             continue
@@ -174,8 +172,8 @@ def parse_data(data, logger):
             collected_objects[signatur][user_name] = {}
         collected_objects[signatur][user_name][created_at] = answers
 
-    logger.info('parsed {0} objects from {1} csv rows. skipped {2} rows with empty annotations'.format(
-        len(collected_objects), valid_rows, empty_annotation_rows))
+    util.info('parsed {0} objects from {1} csv rows. skipped {2} rows with empty annotations'.format(
+        len(collected_objects), valid_rows, empty_annotation_rows), logger)
 
     return collected_objects, {
         'count': {

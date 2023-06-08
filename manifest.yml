@@ -7,6 +7,8 @@ plugin:
   server:
     api-version:
       require: 1
+  # l10n: webfrontend/l10n/presentation-pptx.csv # l10n csv file for fylr
+  l10n: l10n/l10n.csv # l10n csv file for fylr
   webfrontend:
     url: ZooniverseImportMenuApp.js
     css: easydb-plugin-zooniverse-import.css
@@ -18,6 +20,21 @@ system_rights:
 
 python-2:
   file: src/server/main.py
+
+extensions:
+  zooniverse_import:
+    exec:
+      service: "python3"
+      commands:
+        - prog: "python3"
+          stdout:
+            type: "body"
+          args:
+            - type: "value"
+              value: "%_exec.pluginDir%/src/server/main-fylr.py"
+            - type: "value"
+              value: "%info.json%"
+              # value: "%_exec.pluginDir%/server/main-fylr.py"
 
 custom_events:
   - ZOONIVERSE_IMPORT_INSERT
