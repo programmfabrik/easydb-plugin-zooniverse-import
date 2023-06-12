@@ -331,7 +331,7 @@ class ZooniverseImport extends CUI.Element
 					for objecttype, updatedObjects of result["updated"]
 							actualObjects = @__parsedData["updated"]?[objecttype]
 							@__parsedData["updated"][objecttype] = if actualObjects then actualObjects.concat(updatedObjects) else updatedObjects
-					for objecttype, newObjects of result["new"]
+					# for objecttype, newObjects of result["new"]
 						# TODO : make the merge of new parsed data
 
 				dfr.resolve()
