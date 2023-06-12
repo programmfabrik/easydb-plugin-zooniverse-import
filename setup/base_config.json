@@ -1,0 +1,295 @@
+{
+    "system": {
+        "config": {
+            "name": {
+                "description": {
+                    "de-DE": "",
+                    "en-US": ""
+                },
+                "internal_name": "",
+                "title": {
+                    "de-DE": "",
+                    "en-US": ""
+                }
+            },
+            "appearance": {
+                "background_color": "",
+                "brand_color": "",
+                "login_background": null,
+                "logo": null,
+                "tag_icons": []
+            },
+            "license": {
+                "active": false,
+                "license": null
+            },
+            "languages": {
+                "database": [
+                    {
+                        "displayname": {
+                            "de-DE": "",
+                            "en-US": ""
+                        },
+                        "region_format": "de",
+                        "value": "de-DE"
+                    },
+                    {
+                        "displayname": {
+                            "de-DE": "",
+                            "en-US": ""
+                        },
+                        "region_format": "us",
+                        "value": "en-US"
+                    }
+                ],
+                "frontend": [
+                    "de-DE",
+                    "en-US"
+                ]
+            },
+            "indexer": {
+                "languages": []
+            },
+            "email": {
+                "admin_emails": [],
+                "from": "",
+                "signature": {
+                    "de-DE": "",
+                    "en-US": ""
+                }
+            },
+            "email_server": {
+                "cram_md5_auth": {
+                    "password": "",
+                    "username": ""
+                },
+                "helo_domain": "",
+                "insecure_skip_verify": false,
+                "login_auth": {
+                    "password": "",
+                    "username": ""
+                },
+                "plain_auth": {
+                    "identity": "",
+                    "password": "",
+                    "username": ""
+                },
+                "server_addr": "",
+                "type": "off"
+            },
+            "objectstore": {
+                "instance": "",
+                "server": "",
+                "uid": ""
+            },
+            "login": {
+                "guest": false,
+                "info": {
+                    "de-DE": "",
+                    "en-US": ""
+                }
+            },
+            "password": {
+                "check": [],
+                "hint": {
+                    "de-DE": "",
+                    "en-US": ""
+                }
+            },
+            "register": {
+                "enable": false,
+                "form": {
+                    "address": "hide",
+                    "company": "hide",
+                    "department": "hide",
+                    "displayname": "hide",
+                    "first_name": "hide",
+                    "last_name": "hide",
+                    "phone": "hide"
+                },
+                "groups": [],
+                "info": {
+                    "de-DE": "",
+                    "en-US": ""
+                }
+            },
+            "user": {
+                "copy_to_event": [],
+                "default_delete_policy": "ask",
+                "user_in_event_group": [
+                    "ADMIN",
+                    "DOWNLOAD",
+                    "EXPORT",
+                    "FRONTEND",
+                    "LOGIN_LOGOUT",
+                    "SYSTEM",
+                    "UPLOAD"
+                ]
+            },
+            "oauth2": {
+                "clients": [],
+                "expirations": {
+                    "access_token": "",
+                    "refresh_token": ""
+                }
+            },
+            "openid": {
+                "userinfo": []
+            },
+            "ldap": {
+                "bindpassword": "",
+                "bindusername": "",
+                "connections": [],
+                "debug": false,
+                "groupbasedn": "",
+                "groupfilter": "",
+                "groupmapping": [],
+                "userbasedn": "",
+                "userfilter": "",
+                "usermapping": []
+            },
+            "saml": {
+                "cert": "",
+                "debug": false,
+                "groupmapping": [],
+                "key": "",
+                "ldap": {
+                    "bindpassword": "",
+                    "bindusername": "",
+                    "connections": [],
+                    "groupbasedn": "",
+                    "groupfilter": ""
+                },
+                "loginlink": {
+                    "de-DE": "",
+                    "en-US": ""
+                },
+                "url": "",
+                "usermapping": []
+            },
+            "publish": {
+                "collectors": []
+            },
+            "produce_config": {
+                "value": null
+            },
+            "location_defaults": {
+                "backups": 1,
+                "originals": 1,
+                "versions": 1
+            },
+            "detail_deep_link": {
+                "use_system_object_id": false
+            },
+            "deep_link_access": {
+                "allow_access_by_column": false,
+                "allow_access_by_id": false,
+                "enabled": false,
+                "iiif_required_statement": {
+                    "label": {
+                        "de-DE": "",
+                        "en-US": ""
+                    },
+                    "value": {
+                        "de-DE": "",
+                        "en-US": ""
+                    }
+                },
+                "merge_linked_objects": "all",
+                "merge_max_depth": 1
+            },
+            "export": {
+                "xslts": []
+            },
+            "oai_pmh": {
+                "admin_email": [],
+                "enabled": false,
+                "merge_linked_objects": "all",
+                "merge_max_depth": 1,
+                "namespace_identifier": "",
+                "records_limit": 100,
+                "repository_name": "",
+                "tagfilter_sets": []
+            },
+            "transition_webhook": {
+                "webhooks": []
+            },
+            "loca": {
+                "google_csv": [],
+                "google_overload_csv": false
+            },
+            "purge": {
+                "allow_purge": true,
+                "purge_storage": true
+            },
+            "logging": {
+                "level": "info"
+            },
+            "notification_scheduler": {
+                "active": false
+            },
+            "export_scheduler": {
+                "active": false
+            },
+            "custom_data_type_updater": {
+                "active": false
+            },
+            "janitor": {
+                "active": false,
+                "event_remote_addr_expire_days": null,
+                "events": {
+                    "expire_days_ADMIN": null,
+                    "expire_days_DOWNLOAD": null,
+                    "expire_days_EXPORT": null,
+                    "expire_days_FRONTEND": null,
+                    "expire_days_INDEX": null,
+                    "expire_days_LOGIN_LOGOUT": null,
+                    "expire_days_PLUGIN": null,
+                    "expire_days_SYSTEM": null,
+                    "expire_days_UPLOAD": null
+                },
+                "file_expire_days": null,
+                "users": {
+                    "archive_nonactive_after_days": null,
+                    "archive_types": [],
+                    "delete_archived_after_days": null
+                }
+            }
+        }
+    },
+    "plugin": {
+        "easydb-plugin-zooniverse-import": {
+            "config": {
+                "zooniverse_import_mappings": {
+                    "mappings": [
+                        {
+                            "enabled": true,
+                            "match_column": "assets.signatur",
+                            "split_update_column_t0": false,
+                            "split_update_column_t1": true,
+                            "split_update_column_t2": true,
+                            "split_update_column_t3": false,
+                            "split_update_column_t4": true,
+                            "update_column_created_at": "213",
+                            "update_column_t0": "98",
+                            "update_column_t1": "79",
+                            "update_column_t2": "79",
+                            "update_column_t3": "8",
+                            "update_column_t4": "79",
+                            "update_column_user_name": "211",
+                            "update_objecttype": "assets"
+                        }
+                    ]
+                }
+            }
+        },
+        "easydb-wordpress-plugin": {
+            "config": {
+                "wordpress": {
+                    "wp_instances": []
+                }
+            }
+        }
+    },
+    "__EASYDB_BASE_CONFIG__": true
+}

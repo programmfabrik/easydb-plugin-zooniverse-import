@@ -1,0 +1,231 @@
+{
+    "__EASYDB_CSV_IMPORTER_SETTINGS": true,
+    "version": 2,
+    "settings": {
+        "control_fields_warning_shown": null,
+        "match_existing": null,
+        "dest_field_row": 1,
+        "header_row": 1,
+        "action_chunk_size": 100,
+        "mapping": {
+            "_exported_at": null,
+            "_uuid": null,
+            "_objecttype": null,
+            "_system_object_id": "_system_object_id",
+            "_global_object_id": "_global_object_id",
+            "_id": "_id",
+            "_version": null,
+            "_last_modified": null,
+            "_pool_id": null,
+            "_pool#de-DE": null,
+            "_standard#de-DE": null,
+            "neue_schlagworte": "neue_schlagworte",
+            "titel#de-DE": "titel",
+            "ddr_bezirk#_id": null,
+            "ddr_bezirk#_version": null,
+            "ddr_bezirk#_objecttype": null,
+            "ddr_bezirk#_system_object_id": null,
+            "ddr_bezirk#_global_object_id": null,
+            "ddr_bezirk#_uuid": null,
+            "ddr_bezirk#_standard#de-DE": null,
+            "signatur": "signatur",
+            "originaltitel": "originaltitel",
+            "beschreibung#de-DE": "beschreibung",
+            "dateiname": "dateiname",
+            "zitierweise": "zitierweise",
+            "interner_vermerk": "interner_vermerk",
+            "altsignatur1": "altsignatur1",
+            "bildseriennummer": "bildseriennummer",
+            "kommentar[].citizen_kommentar": null,
+            "kommentar[].name_kommentator": null,
+            "kommentar[].datum_kommentar": null,
+            "kommentar[].check_kommentar": null,
+            "kommentar[].check_von": null,
+            "ort[].ortsangabe_manuell": null,
+            "ort[].ortsangabe_geonames": null,
+            "ort[].ortsangabe_geonames#_standard": null,
+            "ort[].ortsangabe_geonames#_standard#de-DE": null,
+            "ort[].location": null,
+            "ort[].location#_standard": null,
+            "ort[].location#_standard#de-DE": null,
+            "ort[].location_photographer": null,
+            "ort[].location_photographer#_standard": null,
+            "ort[].location_photographer#_standard#de-DE": null,
+            "schlagwoerter[].schlagwort#_global_object_id": null,
+            "schlagwoerter[].schlagwort#_id": null,
+            "schlagwoerter[].schlagwort#_objecttype": null,
+            "schlagwoerter[].schlagwort#_system_object_id": null,
+            "schlagwoerter[].schlagwort#_uuid": null,
+            "schlagwoerter[].schlagwort#_version": null,
+            "schlagwoerter[].schlagwort#_standard#de-DE": null,
+            "ddr_bezirk#_id_parent": null,
+            "citizen_kommentar_offen[].commentar_citizen_offen": null,
+            "keywords[].schlagworte#_global_object_id": null,
+            "keywords[].schlagworte#_id": null,
+            "keywords[].schlagworte#_objecttype": null,
+            "keywords[].schlagworte#_system_object_id": null,
+            "keywords[].schlagworte#_uuid": null,
+            "keywords[].schlagworte#_version": null,
+            "keywords[].schlagworte#_standard#de-DE": null,
+            "easydb|keywords|keywords__all_fields": null,
+            "custom__system_object_id": {},
+            "custom__global_object_id": {},
+            "custom__id": {},
+            "custom__pool#de-DE": {
+                "field": "de-DE"
+            },
+            "custom_neue_schlagworte": {},
+            "custom_titel#de-DE": {
+                "language": "de-DE"
+            },
+            "custom_ddr_bezirk#_id": {
+                "column": "_id",
+                "hierarchy_split": null
+            },
+            "custom_ddr_bezirk#_system_object_id": {
+                "column": "_system_object_id",
+                "hierarchy_split": null
+            },
+            "custom_signatur": {},
+            "custom_originaltitel": {},
+            "custom_beschreibung#de-DE": {
+                "language": "de-DE"
+            },
+            "custom_dateiname": {},
+            "custom_zitierweise": {},
+            "custom_interner_vermerk": {},
+            "custom_altsignatur1": {},
+            "custom_bildseriennummer": {},
+            "custom_kommentar[].citizen_kommentar": {},
+            "custom_kommentar[].name_kommentator": {},
+            "custom_kommentar[].datum_kommentar": {},
+            "custom_kommentar[].check_kommentar": {},
+            "custom_kommentar[].check_von": {},
+            "custom_ort[].ortsangabe_manuell": {},
+            "custom_ort[].ortsangabe_geonames": {},
+            "custom_ort[].ortsangabe_geonames#_standard": {},
+            "custom_ort[].ortsangabe_geonames#_standard#de-DE": {},
+            "custom_ort[].location": {},
+            "custom_ort[].location#_standard": {},
+            "custom_ort[].location#_standard#de-DE": {},
+            "custom_ort[].location_photographer": {},
+            "custom_ort[].location_photographer#_standard": {},
+            "custom_ort[].location_photographer#_standard#de-DE": {},
+            "custom_schlagwoerter[].schlagwort#_id": {
+                "column": "_id"
+            },
+            "custom_schlagwoerter[].schlagwort#_system_object_id": {
+                "column": "_system_object_id"
+            },
+            "custom_citizen_kommentar_offen[].commentar_citizen_offen": {},
+            "custom_keywords[].schlagworte#_id": {
+                "column": "_id"
+            },
+            "custom_keywords[].schlagworte#_system_object_id": {
+                "column": "_system_object_id"
+            },
+            "custom__exported_at": {},
+            "custom__uuid": {},
+            "custom__objecttype": {},
+            "custom__version": {},
+            "custom__last_modified": {},
+            "custom__pool_id": {},
+            "custom__standard#de-DE": {},
+            "custom_ddr_bezirk#_version": {},
+            "custom_ddr_bezirk#_objecttype": {},
+            "custom_ddr_bezirk#_global_object_id": {},
+            "custom_ddr_bezirk#_uuid": {},
+            "custom_ddr_bezirk#_standard#de-DE": {},
+            "custom_schlagwoerter[].schlagwort#_global_object_id": {},
+            "custom_schlagwoerter[].schlagwort#_objecttype": {},
+            "custom_schlagwoerter[].schlagwort#_uuid": {},
+            "custom_schlagwoerter[].schlagwort#_version": {},
+            "custom_schlagwoerter[].schlagwort#_standard#de-DE": {},
+            "custom_ddr_bezirk#_id_parent": {},
+            "custom_keywords[].schlagworte#_global_object_id": {},
+            "custom_keywords[].schlagworte#_objecttype": {},
+            "custom_keywords[].schlagworte#_uuid": {},
+            "custom_keywords[].schlagworte#_version": {},
+            "custom_keywords[].schlagworte#_standard#de-DE": {},
+            "custom_easydb|keywords|keywords__all_fields": {}
+        },
+        "objecttype": "assets",
+        "_pool": {
+            "_basetype": "pool",
+            "_path": [
+                {
+                    "pool": {
+                        "_id": 1,
+                        "name": {
+                            "de-DE": "Alle Pools",
+                            "it-IT": "All pools (IT)",
+                            "en-US": "All pools",
+                            "es-ES": "Todos los pools"
+                        },
+                        "custom_data": {}
+                    },
+                    "_basetype": "pool"
+                },
+                {
+                    "pool": {
+                        "_id": 2,
+                        "name": {
+                            "de-DE": "Standard-Pool",
+                            "it-IT": "Default pool (IT)",
+                            "en-US": "Default pool",
+                            "es-ES": "Pool estándar"
+                        },
+                        "_id_parent": 1
+                    },
+                    "_basetype": "pool"
+                }
+            ],
+            "_has_acl": false,
+            "_owner": {
+                "_basetype": "user",
+                "user": {
+                    "frontend_language": "de-DE",
+                    "_id": 1,
+                    "_generated_displayname": "Root",
+                    "type": "system",
+                    "login": "root",
+                    "_version": 64
+                }
+            },
+            "pool": {
+                "description": {},
+                "is_system_pool": true,
+                "_id_parent": 1,
+                "created_timestamp": "2023-02-02T09:17:38Z",
+                "shortname": null,
+                "name": {
+                    "de-DE": "Standard-Pool",
+                    "it-IT": "Default pool (IT)",
+                    "en-US": "Default pool",
+                    "es-ES": "Pool estándar"
+                },
+                "comment": null,
+                "mapping_image_import": "parent",
+                "reference": "system:standard",
+                "mapping_dc_export": "parent",
+                "mapping_image_export": "parent",
+                "contact": null,
+                "last_updated_timestamp": "2023-02-02T09:17:38Z",
+                "_id": 2,
+                "_version": 2,
+                "custom_data": {}
+            },
+            "_schema_version": 8,
+            "_has_children": false
+        },
+        "mask": "_all_fields",
+        "comment": "",
+        "append_nested": false,
+        "append_reverse_nested": false,
+        "create_linked_objects": true,
+        "easType": "ignore",
+        "id_mapping": null,
+        "tags_mode": "tag_add"
+    },
+    "schema_version": 8
+}
