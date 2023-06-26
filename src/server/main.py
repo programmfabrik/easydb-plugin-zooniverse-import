@@ -22,7 +22,7 @@ def api_zooniverse_import(easydb_context, parameters):
 
         post_body = util.get_json_value(parameters, 'body', True)
 
-        columns_by_id = util.parse_datamodel(post_body, logger)
+        datamodel_columns = util.parse_datamodel(post_body, logger)
 
         # load activated database languages from base config
         languages = util.get_json_value(config, 'base.system.languages.database')
@@ -31,7 +31,7 @@ def api_zooniverse_import(easydb_context, parameters):
 
         # load mappings from base config
         plugin_config = util.get_json_value(config, 'base.system.zooniverse_import_mappings.mappings')
-        mappings = util.load_mappings(plugin_config, columns_by_id, logger)
+        mappings = util.load_mappings(plugin_config, datamodel_columns, logger)
 
         stats = util.import_data(
             post_body,

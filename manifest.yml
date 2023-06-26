@@ -34,7 +34,6 @@ extensions:
               value: "%_exec.pluginDir%/src/server/main-fylr.py"
             - type: "value"
               value: "%info.json%"
-              # value: "%_exec.pluginDir%/server/main-fylr.py"
 
 custom_events:
   - ZOONIVERSE_IMPORT_INSERT

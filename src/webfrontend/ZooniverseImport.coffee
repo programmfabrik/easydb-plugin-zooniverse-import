@@ -11,85 +11,85 @@ class ZooniverseImport extends CUI.Element
 		@__modal.show()
 		return
 
-	__parse_fields: (masks, path) ->
-		for mask in masks
+	__parse_datamodel_columns: (mask, path, fullname) ->
 
-			if not "fields" of mask
+		if not "fields" of mask
+			return
+
+		for field in mask.fields
+			if not "kind" of field
 				continue
 
-			for field in mask.fields
-				if not "kind" of field
+			if field.kind == "field"
+
+				if not "column_id" of field
 					continue
 
-				if field.kind == "field"
-
-					if not "column_id" of field
-						continue
-
-					if not "_column" of field
-						continue
-					if not "name" of field._column
-						continue
-					if not "type" of field._column
-						continue
-
-					if field._column.type not in ["string", "text", "text_oneline", "text_l10n", "text_l10n_oneline", "date", "datetime"]
-						continue
-
-					@__columns_by_id[String(field.column_id)] =
-						name: field._column.name
-						type: field._column.type
-					if path.length > 0
-						@__columns_by_id[String(field.column_id)]["path"] = path
-
+				if not "_column" of field
+					continue
+				if not "name" of field._column
+					continue
+				if not "type" of field._column
 					continue
 
-				if field.kind == "link"
-
-					if not "_column" of field
-						continue
-					if not "name" of field._column
-						continue
-
-					if not "_other_table" of field
-						continue
-					if not "_preferred_mask" of field._other_table
-						continue
-					if not "name" of field._other_table
-						continue
-
-					new_path = []
-					for p in path
-						new_path.push p
-					new_path.push
-						type: "link"
-						name: field._column.name
-						objecttype: field._other_table.name
-
-					@__parse_fields([field._other_table._preferred_mask], new_path)
-
+				if field._column.type not in ["string", "text", "text_oneline", "text_l10n", "text_l10n_oneline", "date", "datetime"]
 					continue
 
-				if field.kind == "linked-table"
+				_fname = fullname + '.' + field._column.name
+				@__datamodel_columns[_fname] =
+					name: field._column.name
+					type: field._column.type
+				if path.length > 0
+					@__datamodel_columns[_fname]["path"] = path
 
-					if not "mask" of field
-						continue
+				continue
 
-					if not "_other_table" of field
-						continue
-					if not "name" of field._other_table
-						continue
+			if field.kind == "link"
 
-					new_path = []
-					for p in path
-						new_path.push p
-					new_path.push
-						type: "_nested"
-						name: field._other_table.name
-
-					@__parse_fields([field.mask], new_path)
-
+				if not "_column" of field
 					continue
+				if not "name" of field._column
+					continue
+
+				if not "_other_table" of field
+					continue
+				if not "_preferred_mask" of field._other_table
+					continue
+				if not "name" of field._other_table
+					continue
+
+				new_path = []
+				for p in path
+					new_path.push p
+				new_path.push
+					type: "link"
+					name: field._column.name
+					objecttype: field._other_table.name
+
+				@__parse_datamodel_columns(field._other_table._preferred_mask, new_path, fullname + '.' + field._column.name)
+
+				continue
+
+			if field.kind == "linked-table"
+
+				if not "mask" of field
+					continue
+
+				if not "_other_table" of field
+					continue
+				if not "name" of field._other_table
+					continue
+
+				new_path = []
+				for p in path
+					new_path.push p
+				new_path.push
+					type: "_nested"
+					name: field._other_table.name
+
+				@__parse_datamodel_columns(field.mask, new_path, fullname + '._nested:' + field._other_table.name)
+
+				continue
 
 	__log_events: ->
 		for e in @__events
@@ -112,8 +112,9 @@ class ZooniverseImport extends CUI.Element
 		# api callback can not load all necessary information about the datamodel
 		# for each table, get the name by id and the corresponding mask
 
-		@__columns_by_id = {}
-		@__parse_fields(ez5.mask.CURRENT.masks, [])
+		@__datamodel_columns = {}
+		for mask in ez5.mask.CURRENT.masks
+			@__parse_datamodel_columns(mask, [], mask.table_name_hint)
 
 		@__parseButton = new CUI.Button
 			text: $$("zooniverse.importer.modal_content.parse_csv_button.label")
@@ -319,7 +320,7 @@ class ZooniverseImport extends CUI.Element
 				add_token: true
 				json_data:
 					csv: batch[0]
-					columns_by_id: @__columns_by_id
+					datamodel_columns: @__datamodel_columns
 			)
 			.fail(dfr.reject)
 			.done( (result, status, xhr) =>
@@ -366,7 +367,7 @@ class ZooniverseImport extends CUI.Element
 			add_token: true
 			json_data:
 				csv: @__csv_data
-				columns_by_id: @__columns_by_id
+				datamodel_columns: @__datamodel_columns
 
 		.done (result, status, xhr) =>
 			if result?.count

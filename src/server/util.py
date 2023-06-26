@@ -121,7 +121,7 @@ def json_error_response(msg, logger=None):
 # ---------------------
 
 
-def load_mappings(plugin_config, columns_by_id, logger=None):
+def load_mappings(plugin_config, datamodel_columns, logger=None):
     # debug('plugin_config: {0}'.format(dumpjs(plugin_config)), logger)
 
     mappings = {}
@@ -154,11 +154,11 @@ def load_mappings(plugin_config, columns_by_id, logger=None):
                 continue
 
             update_column = m[k]
-            if update_column not in columns_by_id:
+            if update_column not in datamodel_columns:
                 continue
 
-            # debug('column {0}: {1}'.format(update_column, dumpjs(columns_by_id[update_column])), logger)
-            m[k] = columns_by_id[update_column]
+            # debug('column {0}: {1}'.format(update_column, dumpjs(datamodel_columns[update_column])), logger)
+            m[k] = datamodel_columns[update_column]
 
         mappings[update_objecttype] = m
 
@@ -174,10 +174,6 @@ def __search_fylr(api_url, token, query) -> dict:
             'Authorization': 'Bearer ' + token,
         },
         data=dumpjs(query))
-
-    fylr_util.write_tmp_file('zooniverse.json', [
-        'search response', resp.text,
-    ], new_file=False)
 
     if resp.status_code != 200:
         raise Exception('search error: status: {0}, response: {1}'.format(resp.status_code, resp.text))
@@ -383,11 +379,11 @@ def parse_datamodel(data, logger=None):
     except:
         return {}
 
-    columns_by_id = get_json_value(js, 'columns_by_id')
-    if not isinstance(columns_by_id, dict):
+    datamodel_columns = get_json_value(js, 'datamodel_columns')
+    if not isinstance(datamodel_columns, dict):
         return {}
 
-    return columns_by_id
+    return datamodel_columns
 
 
 # ---------------------------

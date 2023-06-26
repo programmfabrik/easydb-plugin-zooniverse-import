@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
         # read POST body from stdin
         post_body = sys.stdin.read()
-        columns_by_id = util.parse_datamodel(post_body)
+        datamodel_columns = util.parse_datamodel(post_body)
 
         # load activated database languages from base config
         languages = []
@@ -37,16 +37,7 @@ if __name__ == '__main__':
 
         # load mappings from base config
         plugin_config = util.get_json_value(info_json, 'config.plugin.easydb-plugin-zooniverse-import.config.zooniverse_import_mappings.mappings')
-        mappings = util.load_mappings(plugin_config, columns_by_id)
-
-        fylr_util.write_tmp_file('zooniverse.json', [
-            'api_url', util.dumpjs(api_url),
-            'access_token', util.dumpjs(access_token),
-            'columns_by_id', util.dumpjs(columns_by_id),
-            'plugin_config', util.dumpjs(plugin_config),
-            'mappings', util.dumpjs(mappings),
-            'languages', util.dumpjs(languages),
-        ], new_file=True)
+        mappings = util.load_mappings(plugin_config, datamodel_columns)
 
         stats = util.import_data(
             post_body,

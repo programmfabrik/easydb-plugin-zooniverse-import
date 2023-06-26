@@ -80,7 +80,7 @@ class ZooniverseImportBaseConfig extends BaseConfigPlugin
                     hint:  $$(@key_prefix + def.plugin_type + @key_hint_suffix)
                 name: fieldName
                 objecttype_data_key: "update_objecttype"
-                store_value: "id"
+                store_value: "fullname"
                 deep_linked_objects: true
                 sort: sort
                 show_name: true
@@ -94,7 +94,7 @@ class ZooniverseImportBaseConfig extends BaseConfigPlugin
                     hint:  $$(@key_prefix + def.plugin_type + @key_hint_suffix)
                 name: fieldName
                 objecttype_data_key: "update_objecttype"
-                store_value: "id"
+                store_value: "fullname"
                 deep_linked_objects: true
                 sort: sort
                 show_name: true
@@ -108,7 +108,7 @@ class ZooniverseImportBaseConfig extends BaseConfigPlugin
                     hint:  $$(@key_prefix + def.plugin_type + @key_hint_suffix)
                 name: fieldName
                 objecttype_data_key: "update_objecttype"
-                store_value: "id"
+                store_value: "fullname"
                 deep_linked_objects: true
                 sort: sort
                 show_name: true
