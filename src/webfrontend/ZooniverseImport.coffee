@@ -91,21 +91,6 @@ class ZooniverseImport extends CUI.Element
 
 				continue
 
-	__log_events: ->
-		for e in @__events
-			if not "type" of e
-				continue
-			if not e.type in ["ZOONIVERSE_IMPORT_INSERT", "ZOONIVERSE_IMPORT_UPDATE"]
-				continue
-
-			event =
-				type: e.type
-				pollable: false
-			if "info_json" of e
-				event.info = e.info_json
-
-			EventPoller.saveEvent(event)
-
 
 	__init: ->
 		# plugin needs information about the datamodel
@@ -167,8 +152,8 @@ class ZooniverseImport extends CUI.Element
 					if failedImportsObjecttypes.length > 0
 						CUI.alert(markdown: true, text: $$("zooniverse.importer.fail_text"))
 					else
-						if @__events?.length > 0
-							for event in @__events
+						if @__parsedData.events?.length > 0
+							for event in @__parsedData.events
 								EventPoller.saveEvent
 									type: event.type
 									info: event.info_json
@@ -311,6 +296,7 @@ class ZooniverseImport extends CUI.Element
 		return
 
 	__parseCSVBatched: ->
+		@__showSplash()
 		url = ez5.pluginManager.getPlugin("easydb-plugin-zooniverse-import").getPluginURL()
 		parseAndMergeData = (batch) =>
 			dfr = new CUI.Deferred()
@@ -327,13 +313,62 @@ class ZooniverseImport extends CUI.Element
 				if not @__parsedData
 					# We dont have parseData we use the returned by the server
 					@__parsedData = result
+					@__parsedData.events ?= []
 				else
 					# We have parsed data already, we must merge it.
+					if result.count
+						@__parsedData.count ?= {}
+						@__parsedData.count.parsed_rows += result.count.parsed_rows
+						@__parsedData.count.parsed_objs += result.count.parsed_objs
+
 					for objecttype, updatedObjects of result["updated"]
-							actualObjects = @__parsedData["updated"]?[objecttype]
-							@__parsedData["updated"][objecttype] = if actualObjects then actualObjects.concat(updatedObjects) else updatedObjects
-					# for objecttype, newObjects of result["new"]
-						# TODO : make the merge of new parsed data
+						# First we merge the update objects, we dont have to check for unique entries, we sent the
+						# data ordered by Signature to avoid that.
+						actualObjects = @__parsedData["updated"]?[objecttype]
+						@__parsedData["updated"][objecttype] = if actualObjects then actualObjects.concat(updatedObjects) else updatedObjects
+						# We must update the counts
+						@__parsedData.count.updated ?= {}
+						@__parsedData.count.updated[objecttype] = @__parsedData["updated"][objecttype].length
+
+					for objecttype, newObjects of result["new"]
+						# Now we merge the new objects, here we have to add only once each object, this means that
+						# on each request we can receive objects that are already here, we must avoid duplications.
+						actualObjects = @__parsedData["new"]?[objecttype]
+						if not actualObjects
+							@__parsedData["new"]?[objecttype] = newObjects
+						else
+							for object in newObjects
+								objFound = @__parsedData["new"][objecttype].some((obj) => CUI.util.isEqual(obj,object))
+								if not objFound
+									@__parsedData["new"][objecttype].push(object)
+						# We must update the counts
+						@__parsedData.count.new ?= {}
+						@__parsedData.count.new[objecttype] = @__parsedData["new"][objecttype].length
+
+						# Now we merge the update events.
+						updateEvents = result["events"]?.filter( (ev) => ev.type == "ZOONIVERSE_IMPORT_UPDATE")
+						if updateEvents
+							for updateEvent in updateEvents
+								actualUpdateEvent = @__parsedData["events"].find( (ev) =>
+									ev.type == "ZOONIVERSE_IMPORT_UPDATE" and ev.info_json.objecttype == updateEvent.info_json.objecttype
+								)
+								if actualUpdateEvent
+									actualUpdateEvent.info_json.objects = actualUpdateEvent.info_json.objects.concat(updateEvent.info_json.objects)
+								else
+									@__parsedData["events"].push(updateEvent)
+
+						# Now we merge the insert Events.
+						insertEvents = result["events"]?.filter( (ev) => ev.type == "ZOONIVERSE_IMPORT_INSERT")
+						if insertEvents
+							for insertEvent in insertEvents
+								actualInsertEvent = @__parsedData["events"].find( (ev) =>
+									ev.type == "ZOONIVERSE_IMPORT_INSERT" and ev.info_json.objecttype == insertEvent.info_json.objecttype
+								)
+								if actualInsertEvent
+									# We use a set to only add unique values to the array.
+									actualInsertEvent.info_json.unique_values = Array.from(new Set(actualInsertEvent.info_json.unique_values.concat(insertEvent.info_json.unique_values)))
+								else
+									@__parsedData["events"].push(insertEvent)
 
 				dfr.resolve()
 			)
@@ -355,60 +390,52 @@ class ZooniverseImport extends CUI.Element
 				return parseAndMergeData(batch)
 		).fail( =>
 
+		).done( =>
+			if not CUI.util.isEmpty(@__parsedData.count)
+				newTotal = 0
+				updatedTotal = 0
+				for k,v of @__parsedData.count.new
+					newTotal += v
+				@__parsedData.count.new_total = newTotal
+				for k,v of @__parsedData.count.updated
+					updatedTotal += v
+				@__parsedData.count.updated_total = updatedTotal
+			@__ImportReady()
+		).always( =>
+			@__hideSplash()
 		)
 		return
 
 
-	__parseCSV: ->
-		url = ez5.pluginManager.getPlugin("easydb-plugin-zooniverse-import").getPluginURL()
-		ez5.server
-			local_url: url+"/zooniverse_import"
-			type: "POST"
-			add_token: true
-			json_data:
-				csv: @__csv_data
-				datamodel_columns: @__datamodel_columns
+	__ImportReady: ->
 
-		.done (result, status, xhr) =>
-			if result?.count
+		if not CUI.util.isEmpty(@__parsedData.count)
+			logText = "**#{$$("zooniverse.importer.log.header")}**\n* #{$$("zooniverse.importer.log.parsed_rows")}: #{@__parsedData.count.parsed_rows}\n* #{$$("zooniverse.importer.log.parsed_objects")}: #{@__parsedData.count.parsed_objs}\n"
 
-				@__parsedData = result;
+			if not CUI.util.isEmpty(@__parsedData.count["updated"])
+				updatedObjectsText = "\n**#{$$("zooniverse.importer.log.updated_objects")}**\n"
+				for k, v of @__parsedData.count["updated"]
+					updatedObjectsText += "* #{k}: #{v}\n"
+				logText += updatedObjectsText
 
-				logText = "**#{$$("zooniverse.importer.log.header")}**\n* #{$$("zooniverse.importer.log.parsed_rows")}: #{result.count.parsed_rows}\n* #{$$("zooniverse.importer.log.parsed_objects")}: #{result.count.parsed_objs}\n"
-
-				if not CUI.util.isEmpty(result.count["updated"])
-					updatedObjectsText = "\n**#{$$("zooniverse.importer.log.updated_objects")}**\n"
-					for k, v of result.count["updated"]
-						updatedObjectsText += "* #{k}: #{v}\n"
-					logText += updatedObjectsText
-
-					if not CUI.util.isEmpty(result.count["new"])
-						newObjectsText = "\n**#{$$("zooniverse.importer.log.new_objects")}**\n"
-						for k, v of result.count["new"]
-							newObjectsText += "* #{k}: #{v}\n"
-						logText += newObjectsText
-
-				else
-					logText += "\n**#{$$("zooniverse.importer.log.no_updated_objects")}**\n"
-
-				@__setOverviewText(logText)
+				if not CUI.util.isEmpty(@__parsedData.count["new"])
+					newObjectsText = "\n**#{$$("zooniverse.importer.log.new_objects")}**\n"
+					for k, v of @__parsedData.count["new"]
+						newObjectsText += "* #{k}: #{v}\n"
+					logText += newObjectsText
 
 			else
-				CUI.alert(text: "No objects could be parsed.")
+				logText += "\n**#{$$("zooniverse.importer.log.no_updated_objects")}**\n"
 
-			# only enable import button if there are objects to import
-			if result?.count?.new_total > 0 or result?.count?.updated_total > 0
-				@__importButton.enable()
+			@__setOverviewText(logText)
 
-			# save events from response, only write events after import was successful
-			@__events = result?.events
+		else
+			CUI.alert(text: "No objects could be parsed.")
 
-		.fail (result, status, xhr) =>
-			@__importButton.disable()
-			console.log "zooniverse_import error:", result
-			EventPoller.saveEvent
-				type: "ZOONIVERSE_IMPORT_ERROR"
-				info: result
+		# only enable import button if there are objects to import
+		if @__parsedData?.count?.new_total > 0 or @__parsedData.count.updated_total > 0
+			@__importButton.enable()
+
 
 	__showSplash: ->
 		if not @__waitBlock
