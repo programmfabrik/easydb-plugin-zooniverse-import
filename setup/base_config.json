@@ -234,6 +234,10 @@
             "custom_data_type_updater": {
                 "active": false
             },
+            "webdav": {
+                "hotfolder": false,
+                "read_write_access": false
+            },
             "janitor": {
                 "active": false,
                 "event_remote_addr_expire_days": null,
@@ -258,6 +262,95 @@
         }
     },
     "plugin": {
+        "custom-data-type-dante": {
+            "config": {
+                "update_interval_dante": {
+                    "days": 0,
+                    "default_language": ""
+                }
+            }
+        },
+        "custom-data-type-gazetteer": {
+            "config": {
+                "update_interval_gazetteer": {
+                    "days": 1
+                },
+                "gazetteer_plugin_settings": {
+                    "enabled": false,
+                    "field_from": null,
+                    "field_to": null,
+                    "objecttype": null,
+                    "on_update": false,
+                    "show_alternative_names": false,
+                    "show_lat_lng": false
+                }
+            }
+        },
+        "custom-data-type-geonames": {
+            "config": {
+                "update_interval_geonames": {
+                    "days": 0,
+                    "default_language": "",
+                    "geonames_username": ""
+                }
+            }
+        },
+        "custom-data-type-gnd": {
+            "config": {
+                "update_interval_gnd": {
+                    "days": 0
+                }
+            }
+        },
+        "custom-data-type-gvk": {
+            "config": {
+                "update_interval_gvk": {
+                    "days": 0
+                }
+            }
+        },
+        "custom-data-type-html-editor": {
+            "config": {
+                "html_editor": {
+                    "custom_css_url": ""
+                }
+            }
+        },
+        "custom-data-type-iconclass": {
+            "config": {
+                "update_interval_iconclass": {
+                    "days": 0,
+                    "default_language": ""
+                }
+            }
+        },
+        "custom-data-type-iucn": {
+            "config": {
+                "update_interval_iucn": {
+                    "days": 1
+                },
+                "iucn_api_settings": {
+                    "api_token": "",
+                    "api_url": ""
+                },
+                "iucn_easydb_settings": {
+                    "easydb_login": "",
+                    "easydb_password": ""
+                },
+                "iucn_settings": {
+                    "iucn_fields": [],
+                    "tag_red": null,
+                    "tag_unclear": null
+                }
+            }
+        },
+        "custom-data-type-link": {
+            "config": {
+                "weblink": {
+                    "templates": []
+                }
+            }
+        },
         "easydb-plugin-zooniverse-import": {
             "config": {
                 "zooniverse_import_mappings": {
@@ -270,23 +363,16 @@
                             "split_update_column_t2": true,
                             "split_update_column_t3": false,
                             "split_update_column_t4": true,
-                            "update_column_created_at": "213",
-                            "update_column_t0": "98",
-                            "update_column_t1": "79",
-                            "update_column_t2": "79",
-                            "update_column_t3": "8",
-                            "update_column_t4": "79",
-                            "update_column_user_name": "211",
+                            "update_column_created_at": "assets._nested:assets__kommentar.datum_kommentar",
+                            "update_column_t0": "assets._nested:assets__ort.ortsangabe_manuell",
+                            "update_column_t1": "assets._nested:assets__schlagwoerter.schlagwort.schlagwort",
+                            "update_column_t2": "assets._nested:assets__schlagwoerter.schlagwort.schlagwort",
+                            "update_column_t3": "assets.beschreibung",
+                            "update_column_t4": "assets._nested:assets__schlagwoerter.schlagwort.schlagwort",
+                            "update_column_user_name": "assets._nested:assets__kommentar.name_kommentator",
                             "update_objecttype": "assets"
                         }
                     ]
-                }
-            }
-        },
-        "easydb-wordpress-plugin": {
-            "config": {
-                "wordpress": {
-                    "wp_instances": []
                 }
             }
         }

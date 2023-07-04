@@ -319,19 +319,33 @@ def __build_object(objecttype, obj, languages):
     }
 
 
-def format_date(value):
+def __check_datetime(value):
     try:
         m = re.match(
             r'^\d{4}(-\d{2}(-\d{2}((T| )(\d{2}(:\d{2}(:\d{2}((\+|-)\d{1,2}:\d{2}){0,1}){0,1}){0,1}){0,1}){0,1}){0,1}){0,1}$',
             value
         )
-        if m is None:
-            return None
-        return {
-            'value': value
-        }
+        return m is not None
     except:
+        return False
+
+
+def format_datetime(value):
+    if not __check_datetime(value):
         return None
+
+    return {
+        'value': value
+    }
+
+
+def format_date(value):
+    if not __check_datetime(value):
+        return None
+
+    return {
+        'value': re.split(' |T', value)[0].strip()
+    }
 
 
 def split_value(value):

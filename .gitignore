@@ -13,6 +13,5 @@ build-stamp-*
 .\#*
 .vscode/
 .pytest_cache/
-test.py
 testdata/
 setup/*.csv

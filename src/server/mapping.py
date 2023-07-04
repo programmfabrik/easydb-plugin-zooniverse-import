@@ -148,10 +148,16 @@ def apply(obj, unique_linked_object_values, mapping, column_name, value, signatu
             _fv.append(_v)
         formatted_value = _fv
 
-    if fieldtype in ['date', 'datetime']:
+    elif fieldtype in ['date']:
         _fv = []
         for fv in formatted_value:
             _fv.append(util.format_date(value))
+        formatted_value = _fv
+
+    elif fieldtype in ['datetime']:
+        _fv = []
+        for fv in formatted_value:
+            _fv.append(util.format_datetime(value))
         formatted_value = _fv
 
     # util.debug('[mapping.apply] [{0}] value: {1} => formatted: {2}'.format(signatur, value, formatted_value),logger)
