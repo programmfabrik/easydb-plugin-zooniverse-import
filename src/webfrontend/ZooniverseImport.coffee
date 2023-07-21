@@ -124,8 +124,6 @@ class ZooniverseImport extends CUI.Element
 					icon: "upload"
 					text: $$("zooniverse.importer.modal_content.upload_csv_button.label")
 					multiple: false
-					onClick: =>
-						@__importButton.disable()
 			,
 				@__parseButton
 			,
@@ -137,77 +135,38 @@ class ZooniverseImport extends CUI.Element
 			primary: true
 			disabled: true
 			onClick: =>
+				@__startImport()
 
-				if not @__parsedData
-					return
+		@__config = {}
+		batchSelector = new CUI.Select
+			class: "ez5-zooniverse-batch-selector"
+			data: @__config
+			name: "batchSize"
+			options: [
+				value: 1000
+			,
+				value: 500
+			,
+				value: 200
+			,
+				value: 100
+			,
+				value: 50
+			,
+				value: 10
+			,
+				value: 1
+			]
+			onDataChanged: (data) =>
+				console.log data
 
-				@__showSplash()
-
-				newObjectPromises = []
-				failedImportsObjecttypes = []
-				updatedObjectPromises = []
-
-				finishImport = =>
-					@__hideSplash()
-					if failedImportsObjecttypes.length > 0
-						CUI.alert(markdown: true, text: $$("zooniverse.importer.fail_text"))
-					else
-						if @__parsedData.events?.length > 0
-							for event in @__parsedData.events
-								EventPoller.saveEvent
-									type: event.type
-									info: event.info_json
-						CUI.alert(markdown: true, text: $$("zooniverse.importer.success_text"))
-						@clean()
-
-				importUpdates = =>
-					if @__parsedData["updated"]?.length == 0
-						finishImport()
-					else
-						for ot_name, objects of @__parsedData["updated"]
-							do(ot_name) =>
-								updatedObjectPromises.push(
-									CUI.chunkWork.call(@,
-										items: objects
-										chunk_size: 1000
-										call: (items) =>
-											return ez5.api.db(
-												type: "POST"
-												api: '/'+ot_name
-												json_data: items
-											)
-									).fail( =>
-										failedImportsObjecttypes.push(ot_name)
-									)
-								)
-						CUI.whenAll(updatedObjectPromises).done(=>
-							finishImport()
-						)
-
-				if not @__parsedData["new"].length == 0
-					importUpdates()
-				else
-					# ez5 can handle multiple objecttypes post in parallel?
-					for ot_name, objects of @__parsedData["new"]
-						do(ot_name) =>
-							newObjectPromises.push(
-								CUI.chunkWork.call(@,
-									items: objects
-									chunk_size: 1000
-									call: (items) =>
-										return ez5.api.db(
-											type: "POST"
-											api: '/'+ot_name
-											json_data: items
-										)
-								).fail( =>
-									failedImportsObjecttypes.push(ot_name)
-								)
-						)
-					CUI.whenAll(newObjectPromises).done( =>
-						importUpdates()
-					)
-
+		@__batchSelector = new CUI.HorizontalList
+				content: [
+					new CUI.Label(text:"Batch Size"+": ")
+				,
+					batchSelector.start()
+				]
+		@__batchSelector.hide()
 
 		@__modal = new CUI.Modal
 			class: "ez5-zooniverse-importer-modal"
@@ -225,6 +184,9 @@ class ZooniverseImport extends CUI.Element
 						onClick: =>
 							@cancel()
 				]
+				footer_left: [
+					@__batchSelector
+				]
 
 	cancel: ->
 		CUI.confirm
@@ -237,6 +199,7 @@ class ZooniverseImport extends CUI.Element
 		delete(@__csv_data)
 		@__parseButton.disable()
 		@__importButton.disable()
+		@__batchSelector.hide()
 
 	__setOverviewText: (text) ->
 		@__overviewText.setText(text)
@@ -248,6 +211,7 @@ class ZooniverseImport extends CUI.Element
 	__getUploadFileReader: ->
 		new CUI.FileReader
 			onDone: (fileReader) =>
+				@clean()
 				try
 					csv_data = new CUI.CSVData()
 					csv_data.parse(
@@ -296,6 +260,9 @@ class ZooniverseImport extends CUI.Element
 		return
 
 	__parseCSVBatched: ->
+		# Clean the previous data if any.
+		delete(@__parsedData)
+
 		@__showSplash()
 		url = ez5.pluginManager.getPlugin("easydb-plugin-zooniverse-import").getPluginURL()
 		parseAndMergeData = (batch) =>
@@ -435,6 +402,7 @@ class ZooniverseImport extends CUI.Element
 		# only enable import button if there are objects to import
 		if @__parsedData?.count?.new_total > 0 or @__parsedData.count.updated_total > 0
 			@__importButton.enable()
+			@__batchSelector.show()
 
 
 	__showSplash: ->
@@ -445,5 +413,76 @@ class ZooniverseImport extends CUI.Element
 
 	__hideSplash: ->
 		@__waitBlock?.hide()
+
+	__startImport : ->
+		if not @__parsedData
+			return
+
+		@__showSplash()
+
+		newObjectPromises = []
+		failedImportsObjecttypes = []
+		updatedObjectPromises = []
+
+		finishImport = =>
+			@__hideSplash()
+			if failedImportsObjecttypes.length > 0
+				CUI.alert(markdown: true, text: $$("zooniverse.importer.fail_text"))
+			else
+				if @__parsedData.events?.length > 0
+					for event in @__parsedData.events
+						EventPoller.saveEvent
+							type: event.type
+							info: event.info_json
+				CUI.alert(markdown: true, text: $$("zooniverse.importer.success_text"))
+				@clean()
+
+		importUpdates = =>
+			if @__parsedData["updated"]?.length == 0
+				finishImport()
+			else
+				for ot_name, objects of @__parsedData["updated"]
+					do(ot_name) =>
+						updatedObjectPromises.push(
+							CUI.chunkWork.call(@,
+								items: objects
+								chunk_size: @__config.batchSize
+								call: (items) =>
+									return ez5.api.db(
+										type: "POST"
+										api: '/' + ot_name
+										json_data: items
+									)
+							).fail(=>
+								failedImportsObjecttypes.push(ot_name)
+							)
+						)
+				CUI.whenAll(updatedObjectPromises).done(=>
+					finishImport()
+				)
+
+		if not @__parsedData["new"].length == 0
+			importUpdates()
+		else
+			# ez5 can handle multiple objecttypes post in parallel?
+			for ot_name, objects of @__parsedData["new"]
+				do(ot_name) =>
+					newObjectPromises.push(
+						CUI.chunkWork.call(@,
+							items: objects
+							chunk_size: @__config.batchSize
+							call: (items) =>
+								return ez5.api.db(
+									type: "POST"
+									api: '/' + ot_name
+									json_data: items
+								)
+						).fail(=>
+							failedImportsObjecttypes.push(ot_name)
+						)
+					)
+			CUI.whenAll(newObjectPromises).done(=>
+				importUpdates()
+			)
 
 
