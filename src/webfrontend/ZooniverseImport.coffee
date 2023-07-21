@@ -112,6 +112,9 @@ class ZooniverseImport extends CUI.Element
 			markdown: true
 			class: "ez5-zooniverse-importer-log-label"
 
+		@__progressMeter = new CUI.ProgressMeter(state: "spinning")
+		@__progressMeter.hide()
+
 		@__modalContent = new CUI.VerticalList
 			class: "ez5-zooniverse-importer-list"
 			content: [
@@ -128,6 +131,8 @@ class ZooniverseImport extends CUI.Element
 				@__parseButton
 			,
 				@__overviewText
+			,
+				@__progressMeter
 			]
 
 		@__importButton = new CUI.Button
@@ -157,8 +162,6 @@ class ZooniverseImport extends CUI.Element
 			,
 				value: 1
 			]
-			onDataChanged: (data) =>
-				console.log data
 
 		@__batchSelector = new CUI.HorizontalList
 				content: [
@@ -179,10 +182,6 @@ class ZooniverseImport extends CUI.Element
 				content: @__modalContent
 				footer_right: [
 					@__importButton
-					new CUI.Button
-						text: "Cancel"
-						onClick: =>
-							@cancel()
 				]
 				footer_left: [
 					@__batchSelector
@@ -192,6 +191,7 @@ class ZooniverseImport extends CUI.Element
 		CUI.confirm
 			text: $$("zooniverse.importer.modal.confirm_cancel")
 		.done =>
+			@__cancelImport = true
 			@__modal.destroy()
 
 	clean: ->
@@ -200,6 +200,11 @@ class ZooniverseImport extends CUI.Element
 		@__parseButton.disable()
 		@__importButton.disable()
 		@__batchSelector.hide()
+		@__progressMeter.hide()
+
+		CUI.Events.trigger
+			node: @__modal
+			type: "content-resize"
 
 	__setOverviewText: (text) ->
 		@__overviewText.setText(text)
@@ -212,6 +217,7 @@ class ZooniverseImport extends CUI.Element
 		new CUI.FileReader
 			onDone: (fileReader) =>
 				@clean()
+				@__showSplash()
 				try
 					csv_data = new CUI.CSVData()
 					csv_data.parse(
@@ -220,8 +226,10 @@ class ZooniverseImport extends CUI.Element
 					.done =>
 						@__csv_data = csv_data.rows
 						@__prepareData(csv_data.rows)
+						@__hideSplash()
 						@__parseButton.enable()
 				catch
+					@__hideSplash()
 					CUI.problem(text: "Error")
 					return
 
@@ -418,7 +426,21 @@ class ZooniverseImport extends CUI.Element
 		if not @__parsedData
 			return
 
-		@__showSplash()
+		totalItemsImported = 0
+		totalItemsToImport = @__parsedData?.count?.new_total +  @__parsedData.count.updated_total
+
+		@__importButton.disable()
+		@__parseButton.disable()
+		@__progressMeter.show()
+		CUI.Events.trigger
+			node: @__modal
+			type: "content-resize"
+
+		updateProgressMeter = (itemsImported) =>
+			totalItemsImported += itemsImported
+			percent = (totalItemsImported / totalItemsToImport) * 100
+			@__progressMeter.setState(percent)
+		updateProgressMeter(0)
 
 		newObjectPromises = []
 		failedImportsObjecttypes = []
@@ -426,6 +448,8 @@ class ZooniverseImport extends CUI.Element
 
 		finishImport = =>
 			@__hideSplash()
+			if @__cancelImport
+				return
 			if failedImportsObjecttypes.length > 0
 				CUI.alert(markdown: true, text: $$("zooniverse.importer.fail_text"))
 			else
@@ -448,11 +472,17 @@ class ZooniverseImport extends CUI.Element
 								items: objects
 								chunk_size: @__config.batchSize
 								call: (items) =>
-									return ez5.api.db(
+									if @__cancelImport
+										return null
+									request = ez5.api.db(
 										type: "POST"
 										api: '/' + ot_name
 										json_data: items
 									)
+									request.always( =>
+										updateProgressMeter(items.length)
+									)
+									return request
 							).fail(=>
 								failedImportsObjecttypes.push(ot_name)
 							)
@@ -472,11 +502,17 @@ class ZooniverseImport extends CUI.Element
 							items: objects
 							chunk_size: @__config.batchSize
 							call: (items) =>
-								return ez5.api.db(
+								if @__cancelImport
+									return null
+								request = ez5.api.db(
 									type: "POST"
 									api: '/' + ot_name
 									json_data: items
 								)
+								request.always( =>
+									updateProgressMeter(items.length)
+								)
+								return request
 						).fail(=>
 							failedImportsObjecttypes.push(ot_name)
 						)
