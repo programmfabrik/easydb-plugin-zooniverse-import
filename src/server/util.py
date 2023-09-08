@@ -293,7 +293,8 @@ def __create_new_linked_objects(unique_linked_object_values, languages, api_url,
                     }, languages))
                 count += 1
 
-        count_objects[objecttype] = count
+        if count > 0:
+            count_objects[objecttype] = count
 
     return new_linked_objects, count_objects
 
@@ -454,6 +455,17 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
             }
         }
 
+        top_level_field_user, field_user, _ = mapping.path_from_mapping(
+            mapping=ot_mapping,
+            column_name='update_column_user_name',
+            logger=logger,
+        )
+        top_level_field_created, field_created, field_created_type = mapping.path_from_mapping(
+            mapping=ot_mapping,
+            column_name='update_column_created_at',
+            logger=logger,
+        )
+
         # iterate over objects, update objects with mapped data
         updated_objects = []
         for signatur in affected_objects:
@@ -463,51 +475,126 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
 
             obj = affected_objects[signatur]
             zooniverse_data = collected_objects[signatur]
+            obj_changed = False
 
             for user_name in zooniverse_data:
                 for created_at in zooniverse_data[user_name]:
 
-                    top_level_field_user = mapping.apply(
-                        obj=obj,
-                        unique_linked_object_values=unique_linked_object_values,
-                        mapping=ot_mapping,
-                        column_name='update_column_user_name',
-                        value=user_name,
-                        signatur=signatur,
-                        languages=languages,
-                        logger=logger,
-                    )
-                    top_level_field_created = mapping.apply(
-                        obj=obj,
-                        unique_linked_object_values=unique_linked_object_values,
-                        mapping=ot_mapping,
-                        column_name='update_column_created_at',
-                        value=created_at,
-                        signatur=signatur,
-                        languages=languages,
-                        logger=logger,
-                    )
+                    # if the fields for the user and the date of the zooniverse entry is grouped in the same nested table,
+                    # check if this pair of user and date is already in the current object.
+                    # if this is the case, skip this entry completly
+                    skip_zooniverse_entry = False
+                    in_same_nested = False
+                    if top_level_field_user == top_level_field_created:
+                        in_same_nested = True
+                        nested = get_json_value(obj, top_level_field_user)
+                        if isinstance(nested, list):
+                            for entry in nested:
+                                entry_user_name = get_json_value(entry, field_user)
+                                if entry_user_name != user_name:
+                                    continue
 
-                    # user_name and created_at are grouped if they are mapped into the same nested table
-                    if top_level_field_user is not None and top_level_field_user.startswith('_nested:') and top_level_field_user == top_level_field_created:
-                        # take columns from last 2 rows and merge them into one row
-                        if len(obj[top_level_field_user]) > 1:
-                            last_entry = obj[top_level_field_user][-1]
-                            del obj[top_level_field_user][-1]
-                            for k in last_entry:
-                                obj[top_level_field_user][-1][k] = last_entry[k]
+                                if field_created_type in ['date', 'datetime']:
+                                    entry_created_at = get_json_value(entry, '{}.value'.format(field_created))
+                                else:
+                                    entry_created_at = get_json_value(entry, field_created)
+                                if entry_created_at != created_at:
+                                    continue
 
-                    for k in zooniverse_data[user_name][created_at]:
+                                skip_zooniverse_entry = True
+                                break
+
+                    if skip_zooniverse_entry:
+                        debug('pair of user_name="{}" and created_at="{}" is already in object with signature {} -> skip'.format(
+                            user_name, created_at, signatur), logger)
+                        continue
+
+                    debug('add zooniverse data for user_name="{}" and created_at="{}" to object with signature {}'.format(
+                        user_name, created_at, signatur), logger)
+
+                    # decide if user and created_at are in the same nested table
+                    # if so, group them together
+                    if not in_same_nested:
+                        # user and created_at are in different nested tables / fields, so use the default mapping.
+                        # grouping will not necessarily work
                         mapping.apply(
                             obj=obj,
                             unique_linked_object_values=unique_linked_object_values,
                             mapping=ot_mapping,
-                            column_name='update_column_{}'.format(k.lower()),
-                            value=zooniverse_data[user_name][created_at][k],
+                            column_name='update_column_user_name',
+                            value=user_name,
                             signatur=signatur,
                             languages=languages,
                             logger=logger,
                         )
+                        mapping.apply(
+                            obj=obj,
+                            unique_linked_object_values=unique_linked_object_values,
+                            mapping=ot_mapping,
+                            column_name='update_column_created_at',
+                            value=created_at,
+                            signatur=signatur,
+                            languages=languages,
+                            logger=logger,
+                        )
+
+                        # apply mapping to update columns
+                        for k in zooniverse_data[user_name][created_at]:
+                            mapping.apply(
+                                obj=obj,
+                                unique_linked_object_values=unique_linked_object_values,
+                                mapping=ot_mapping,
+                                column_name='update_column_{}'.format(k.lower()),
+                                value=zooniverse_data[user_name][created_at][k],
+                                signatur=signatur,
+                                languages=languages,
+                                logger=logger,
+                            )
+
+                    else:
+                        # user and created_at are in the same row of a nested table, so group them together
+                        dummy_obj = {}
+
+                        if field_created_type in ['date', 'datetime']:
+                            entry_created_at = {
+                                'value': created_at
+                            }
+                        else:
+                            entry_created_at = created_at
+
+                        dummy_obj[top_level_field_user] = [{
+                            field_user: user_name,
+                            field_created: entry_created_at,
+                        }]
+
+                        for k in zooniverse_data[user_name][created_at]:
+                            mapping.apply(
+                                obj=dummy_obj,
+                                unique_linked_object_values=unique_linked_object_values,
+                                mapping=ot_mapping,
+                                column_name='update_column_{}'.format(k.lower()),
+                                value=zooniverse_data[user_name][created_at][k],
+                                signatur=signatur,
+                                languages=languages,
+                                group_into_nested=top_level_field_user,
+                                logger=logger,
+                            )
+
+                        if top_level_field_user in obj and isinstance(obj[top_level_field_user], list):
+                            for entry in dummy_obj[top_level_field_user]:
+                                obj[top_level_field_user].append(entry)
+                        else:
+                            obj[top_level_field_user] = dummy_obj[top_level_field_user]
+
+                        debug('add zooniverse data for user_name="{}" and created_at="{}" to object with signature {}: dummy: {}'.format(
+                            user_name, created_at, signatur, dumpjs(dummy_obj)), logger)
+                        debug('add zooniverse data for user_name="{}" and created_at="{}" to object with signature {}: ==>: {}'.format(
+                            user_name, created_at, signatur, dumpjs(obj[top_level_field_user])), logger)
+
+                    obj_changed = True
+
+            if not obj_changed:
+                continue
 
             id = get_json_value(obj, '_id')
             if not isinstance(id, int):
