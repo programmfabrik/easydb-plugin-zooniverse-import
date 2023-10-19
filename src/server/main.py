@@ -37,8 +37,8 @@ def api_zooniverse_import(easydb_context, parameters):
             post_body,
             mappings,
             languages,
-            None,  # api_url not needed
-            None,  # access_token not needed
+            None,  # api_url only needed for fylr
+            None,  # access_token only needed for fylr
             easydb_context,
             logger,
         )

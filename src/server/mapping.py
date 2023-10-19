@@ -89,17 +89,17 @@ def __is_in_nested(entry, nested: list, linked_ot_path: dict, logger=None) -> bo
     return False
 
 
-def apply(obj, unique_linked_object_values, mapping, column_name, value, signatur, languages, logger=None):
+def apply(obj, unique_linked_object_values, mapping, column_name, value, signatur, languages, group_into_nested=None, logger=None):
     if value is None:
-        return None
+        return
 
     fieldname = util.get_json_value(mapping, column_name + '.name')
     if fieldname is None:
-        return None
+        return
 
     fieldtype = util.get_json_value(mapping, column_name + '.type')
     if fieldtype is None:
-        return None
+        return
 
     path = util.get_json_value(mapping, column_name + '.path')
     if path is None:
@@ -123,14 +123,14 @@ def apply(obj, unique_linked_object_values, mapping, column_name, value, signatu
     if isinstance(value, list):
         is_list = True
         if len(value) < 1:
-            return None
+            return
 
     if split_value:
         value = util.split_value(value)
         if isinstance(value, list):
             is_list = True
             if len(value) < 1:
-                return None
+                return
 
     formatted_value = []
 
@@ -163,19 +163,19 @@ def apply(obj, unique_linked_object_values, mapping, column_name, value, signatu
     # util.debug('[mapping.apply] [{0}] value: {1} => formatted: {2}'.format(signatur, value, formatted_value),logger)
 
     if len(formatted_value) < 1:
-        return None
+        return
 
     if len(path) < 1:
         # simple field on top level of the object
         obj[fieldname] = formatted_value[0]
         util.debug('[mapping.apply] [{0}] inserted/replaced {1}: {2}'.format(signatur, fieldname, obj[fieldname]), logger)
-        return fieldname
+        return
 
     # field is in path (nested tables and/or linked objects)
     for v in formatted_value:
         entry, entry_fieldname = __build_recursive_entry(path, fieldname, v, unique_linked_object_values, logger)
         if entry is None:
-            return entry_fieldname
+            continue
 
         # insert new value
         if not entry_fieldname in obj:
@@ -193,6 +193,69 @@ def apply(obj, unique_linked_object_values, mapping, column_name, value, signatu
 
                 obj[entry_fieldname].append(e)
                 util.debug('[mapping.apply] [{0}] appended to {1}: {2}'.format(signatur, entry_fieldname, e), logger)
+
+    # if there is a name of a nested table given
+    if group_into_nested is None:
+        return
+
+    nested = util.get_json_value(obj, group_into_nested)
+    if not isinstance(nested, list):
+        return
+
+    grouped_nested = {}
+    for row in nested:
+        for k in row:
+            v = row[k]
+            if v is None:
+                continue
+            if k not in grouped_nested:
+                grouped_nested[k] = []
+            if v in grouped_nested[k]:
+                continue
+            grouped_nested[k].append(v)
+
+    for k in grouped_nested:
+        if len(grouped_nested[k]) == 0:
+            grouped_nested[k] = None
+            continue
+        if len(grouped_nested[k]) == 1:
+            grouped_nested[k] = grouped_nested[k][0]
+            continue
+        try:
+            grouped_nested[k] = ', '.join(grouped_nested[k])
+        except:
             continue
 
-    return entry_fieldname
+    obj[group_into_nested] = [grouped_nested]
+
+
+# ---------------------
+
+
+def path_from_mapping(mapping, column_name, logger=None):
+    fieldname = util.get_json_value(mapping, column_name + '.name')
+    if fieldname is None:
+        return None, None, None
+
+    fieldtype = util.get_json_value(mapping, column_name + '.type')
+
+    path = util.get_json_value(mapping, column_name + '.path')
+    if path is None:
+        path = []
+
+    if len(path) < 1:
+        # simple field on top level of the object
+        return None, fieldname, fieldtype
+
+    # field is in path (nested tables and/or linked objects)
+    _path = []
+    for p in path:
+        _p = util.get_json_value(p, 'name')
+        _t = util.get_json_value(p, 'type')
+        if not isinstance(_p, str):
+            continue
+        if _t != '_nested':
+            continue
+        _path.append('_nested:{}'.format(_p))
+
+    return '.'.join(_path), fieldname, fieldtype

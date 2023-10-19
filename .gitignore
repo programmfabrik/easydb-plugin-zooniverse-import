@@ -15,3 +15,5 @@ build-stamp-*
 .pytest_cache/
 testdata/
 setup/*.csv
+*.sh
+*.zip

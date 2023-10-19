@@ -5,7 +5,7 @@ import json
 import util
 
 
-def __parse_row(row, header_ids):
+def __parse_row(row, header_ids, logger=None):
 
     if len(row) < 1:
         return None, None, None, None
@@ -37,16 +37,16 @@ def __parse_row(row, header_ids):
     created_at = None
     try:
         created_at_d = datetime.strptime(row[idx_created_at].strip(), '%Y-%m-%d %H:%M:%S %Z')
-        created_at = created_at_d.strftime('%Y-%m-%dT%H:%M:%S+0:00')
+        created_at = created_at_d.strftime('%Y-%m-%d')
     except Exception as e:
-        print(e)
+        util.warn(str(e), logger)
 
     try:
         annotations = json.loads(row[idx_annotations].replace('`', '"'))
         subject_data = json.loads(row[idx_subject_data].replace('`', '"'))
         return annotations, subject_data, row[idx_user_name].strip(), created_at
     except Exception as e:
-        print(e)
+        util.warn(str(e), logger)
 
     return None, None, None, None
 
@@ -143,7 +143,7 @@ def parse_data(data, logger=None) -> dict:
                 header_ids[row[i]] = i
             continue
 
-        annotations, subject_data, user_name, created_at = __parse_row(row, header_ids)
+        annotations, subject_data, user_name, created_at = __parse_row(row, header_ids, logger)
         if annotations is None:
             continue
         if subject_data is None:
