@@ -37,7 +37,6 @@ def __parse_row(row, header_ids, logger=None):
     created_at = None
     try:
         created_at_d = datetime.strptime(row[idx_created_at].strip(), '%Y-%m-%d %H:%M:%S %Z')
-        # created_at = created_at_d.strftime('%Y-%m-%dT%H:%M:%S+0:00')
         created_at = created_at_d.strftime('%Y-%m-%d')
     except Exception as e:
         util.warn(str(e), logger)

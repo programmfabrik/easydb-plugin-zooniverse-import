@@ -13,11 +13,10 @@ INSTALL_FILES = \
 	$(WEB)/l10n/ru-RU.json \
 	$(WEB)/l10n/pl-PL.json \
 	$(WEB)/l10n/cz-CS.json \
-	$(WEB)/ZooniverseImportMenuApp.js \
-	$(WEB)/ZooniverseImport.js \
-	$(WEB)/ZooniverseImportBaseConfig.js \
-	$(WEB)/ZooniverseImport.scss \
+	$(WEB)/easydb-plugin-zooniverse-import.js \
+	$(WEB)/easydb-plugin-zooniverse-import.css \
 	src/server/main.py \
+	src/server/mapping.py \
 	src/server/util.py \
 	src/server/zooniverse.py \
 	manifest.yml
@@ -33,9 +32,7 @@ COFFEE_FILES = \
 	$(WEB)/ZooniverseImportBaseConfig.coffee
 
 JS = \
-	$(WEB)/ZooniverseImportMenuApp.js \
-	$(WEB)/ZooniverseImport.js \
-	$(WEB)/ZooniverseImportBaseConfig.js
+	$(WEB)/easydb-plugin-zooniverse-import.js \
 
 SCSS_FILES = \
 	$(WEB)/ZooniverseImport.scss
@@ -44,13 +41,28 @@ all: build
 
 include easydb-library/tools/base-plugins.make
 
-build: code css $(L10N) buildinfojson
+build: code css $(L10N) buildinfojson ## build code, creates build folder
+	cp build/webfrontend/ZooniverseImport.scss build/webfrontend/easydb-plugin-zooniverse-import.css
+	rm build/webfrontend/*.coffee.js
+	rm build/webfrontend/*.scss
+	cp -r src/server build
+	cp manifest.master.yml build/manifest.yml
+	chmod 777 $(L10N_FILES)
+	cp $(L10N_FILES) build/webfrontend/l10n
 
 code: $(JS)
 
 clean: clean-base
+	rm $(PLUGIN_NAME).zip || true
 
 wipe: wipe-base
 
-test:
-	python3 src/server/test.py
+test: build
+	python3 build/server/test.py
+
+zip: build ## build zip file for publishing (fylr only)
+	rm $(PLUGIN_NAME).zip || true
+	rm -r $(PLUGIN_NAME) || true
+	cp -r build $(PLUGIN_NAME)
+	zip $(PLUGIN_NAME).zip -x *.pyc -x */__pycache__/* -r $(PLUGIN_NAME)/
+	rm -rf $(PLUGIN_NAME)

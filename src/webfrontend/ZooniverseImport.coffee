@@ -11,7 +11,7 @@ class ZooniverseImport extends CUI.Element
 		@__modal.show()
 		return
 
-	__parse_datamodel_columns: (mask, path, fullname) ->
+	__parse_datamodel_columns: (mask, path, fullname, seen_links) ->
 
 		if not "fields" of mask
 			return
@@ -51,6 +51,10 @@ class ZooniverseImport extends CUI.Element
 				if not "name" of field._column
 					continue
 
+				# avoid recursion: check if the link is already in the path
+				if seen_links.includes(field._column.name)
+					continue
+
 				if not "_other_table" of field
 					continue
 				if not "_preferred_mask" of field._other_table
@@ -65,8 +69,9 @@ class ZooniverseImport extends CUI.Element
 					type: "link"
 					name: field._column.name
 					objecttype: field._other_table.name
+				seen_links.push field._column.name
 
-				@__parse_datamodel_columns(field._other_table._preferred_mask, new_path, fullname + '.' + field._column.name)
+				@__parse_datamodel_columns(field._other_table._preferred_mask, new_path, fullname + '.' + field._column.name, seen_links)
 
 				continue
 
@@ -87,7 +92,7 @@ class ZooniverseImport extends CUI.Element
 					type: "_nested"
 					name: field._other_table.name
 
-				@__parse_datamodel_columns(field.mask, new_path, fullname + '._nested:' + field._other_table.name)
+				@__parse_datamodel_columns(field.mask, new_path, fullname + '._nested:' + field._other_table.name, seen_links)
 
 				continue
 
@@ -99,7 +104,7 @@ class ZooniverseImport extends CUI.Element
 
 		@__datamodel_columns = {}
 		for mask in ez5.mask.CURRENT.masks
-			@__parse_datamodel_columns(mask, [], mask.table_name_hint)
+			@__parse_datamodel_columns(mask, [], mask.table_name_hint, [])
 
 		@__parseButton = new CUI.Button
 			text: $$("zooniverse.importer.modal_content.parse_csv_button.label")

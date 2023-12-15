@@ -1,6 +1,6 @@
 \#*\#
 */l10n/*json
-*.coffee.js
+*.js
 *.swp
 *.pyc
 __pycache__
@@ -8,8 +8,12 @@ build
 build-info.json
 build-stamp-*
 *~
+.~*
 .idea
 .\#*
 .vscode/
-test.py
+.pytest_cache/
 testdata/
+setup/*.csv
+*.sh
+*.zip

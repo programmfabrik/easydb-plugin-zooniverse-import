@@ -235,7 +235,7 @@ def apply(obj, unique_linked_object_values, mapping, column_name, value, signatu
 def path_from_mapping(mapping, column_name, logger=None):
     fieldname = util.get_json_value(mapping, column_name + '.name')
     if fieldname is None:
-        return None, None
+        return None, None, None
 
     fieldtype = util.get_json_value(mapping, column_name + '.type')
 
