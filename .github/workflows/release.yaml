@@ -26,6 +26,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo npm install -g coffeescript@1.12.7
+          sudo npm install -g sass
 
       - name: Install golang
         uses: actions/setup-go@v3
