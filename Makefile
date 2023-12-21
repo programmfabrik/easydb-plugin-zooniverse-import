@@ -61,8 +61,8 @@ test: build
 	python3 build/server/test.py
 
 zip: build ## build zip file for publishing (fylr only)
-	rm $(PLUGIN_NAME).zip || true
+	rm build/$(PLUGIN_NAME).zip || true
 	rm -r $(PLUGIN_NAME) || true
 	cp -r build $(PLUGIN_NAME)
-	zip $(PLUGIN_NAME).zip -x *.pyc -x */__pycache__/* -r $(PLUGIN_NAME)/
+	zip build/$(PLUGIN_NAME).zip -x *.pyc -x */__pycache__/* -r $(PLUGIN_NAME)/
 	rm -rf $(PLUGIN_NAME)
