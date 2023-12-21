@@ -14,9 +14,27 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Fix post run npm cleanup
+        run: mkdir -p /home/runner/.npm; touch /home/runner/package-lock.json
+        continue-on-error: true
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          sudo npm install -g coffeescript@1.12.7
+
+      - name: Install golang
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.20"
+
       - name: Get the version
         id: get_version
-        run: echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
         shell: bash
 
       - name: Extract repository name
