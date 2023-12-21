@@ -25,6 +25,7 @@ def time_diff(k):
     sec = timedelta.total_seconds(datetime.now() - __times[k])
     return sec * 1000.0
 
+
 # ---------------------
 
 
@@ -47,6 +48,7 @@ def error(line, logger):
     if logger is not None:
         logger.error(line)
 
+
 # ---------------------
 
 
@@ -55,7 +57,6 @@ def dumpjs(js, indent=4):
 
 
 def get_json_value(js, path, expected=False, split_char='.'):
-
     current = js
     path_parts = []
     current_part = ''
@@ -96,9 +97,7 @@ def json_response(js, statuscode=200, minify=False):
     return {
         'status_code': statuscode,
         'body': dumpjs(js, indent=None if minify else 4),
-        'headers': {
-            'Content-Type': 'application/json; charset=utf-8'
-        }
+        'headers': {'Content-Type': 'application/json; charset=utf-8'},
     }
 
 
@@ -106,9 +105,7 @@ def json_error_response(msg, logger=None):
     error = {
         'realm': 'user',
         'code': 'error.user.zooniverse_import',
-        'parameters': {
-                'description': msg
-        }
+        'parameters': {'description': msg},
     }
 
     error(dumpjs(error), logger)
@@ -145,7 +142,7 @@ def load_mappings(plugin_config, datamodel_columns, logger=None):
             continue
         if not match_column.startswith('{0}.'.format(update_objecttype)):
             continue
-        m['match_column'] = match_column[len(update_objecttype) + 1:]
+        m['match_column'] = match_column[len(update_objecttype) + 1 :]
 
         for k in m.keys():
             if not k.startswith('update_column_'):
@@ -162,6 +159,7 @@ def load_mappings(plugin_config, datamodel_columns, logger=None):
 
     return mappings
 
+
 # ---------------------------------
 
 
@@ -171,15 +169,24 @@ def __search_fylr(api_url, token, query) -> dict:
         headers={
             'Authorization': 'Bearer ' + token,
         },
-        data=dumpjs(query))
+        data=dumpjs(query),
+    )
 
     if resp.status_code != 200:
-        raise Exception('search error: status: {0}, response: {1}'.format(resp.status_code, resp.text))
+        raise Exception(
+            'search error: status: {0}, response: {1}'.format(
+                resp.status_code, resp.text
+            )
+        )
 
     try:
         result = json.loads(resp.text)
     except Exception as e:
-        raise Exception('search error: could not parse search response {0}: {1}'.format(resp.text, str(e)))
+        raise Exception(
+            'search error: could not parse search response {0}: {1}'.format(
+                resp.text, str(e)
+            )
+        )
 
     return result
 
@@ -197,14 +204,27 @@ def __get_user_id_from_context(easydb_context):
 
 # ---------------------------------
 
-def __load_objects_by_signature(objecttype, match_column, signatures, api_url, token, easydb_context=None, logger=None):
+
+def __load_objects_by_signature(
+    objecttype,
+    match_column,
+    signatures,
+    api_url,
+    token,
+    easydb_context=None,
+    logger=None,
+):
     limit = 1000
     offset = 0
 
     affected_objects = {}
 
     # only needed for easydb5, do not repeatedly load the session
-    user_id = __get_user_id_from_context(easydb_context) if easydb_context is not None else None
+    user_id = (
+        __get_user_id_from_context(easydb_context)
+        if easydb_context is not None
+        else None
+    )
 
     has_more = True
     while has_more:
@@ -215,16 +235,12 @@ def __load_objects_by_signature(objecttype, match_column, signatures, api_url, t
                 {
                     'bool': 'must',
                     'type': 'in',
-                    'fields': [
-                        '{0}.{1}'.format(objecttype, match_column)
-                    ],
-                    'in': signatures[offset:offset + limit]
+                    'fields': ['{0}.{1}'.format(objecttype, match_column)],
+                    'in': signatures[offset : offset + limit],
                 }
             ],
             'format': 'long',
-            'objecttypes': [
-                objecttype
-            ]
+            'objecttypes': [objecttype],
         }
         offset += limit
         has_more = offset < len(signatures)
@@ -257,7 +273,15 @@ def __load_objects_by_signature(objecttype, match_column, signatures, api_url, t
 
 # -----------------------
 
-def __create_new_linked_objects(unique_linked_object_values, languages, api_url, token, easydb_context=None, logger=None):
+
+def __create_new_linked_objects(
+    unique_linked_object_values,
+    languages,
+    api_url,
+    token,
+    easydb_context=None,
+    logger=None,
+):
     new_linked_objects = {}
     count_objects = {}
 
@@ -276,7 +300,7 @@ def __create_new_linked_objects(unique_linked_object_values, languages, api_url,
                 api_url,
                 token,
                 easydb_context,
-                logger
+                logger,
             )
             # debug('[create_new_linked_objects] existing objects for values: {0}' .format(existing_objects.keys()), logger)
 
@@ -287,16 +311,17 @@ def __create_new_linked_objects(unique_linked_object_values, languages, api_url,
 
                 # create a new object
                 new_linked_objects[objecttype].append(
-                    __build_object(objecttype, {
-                        '_version': 1,
-                        match_column: v
-                    }, languages))
+                    __build_object(
+                        objecttype, {'_version': 1, match_column: v}, languages
+                    )
+                )
                 count += 1
 
         if count > 0:
             count_objects[objecttype] = count
 
     return new_linked_objects, count_objects
+
 
 # -----------------------
 
@@ -322,7 +347,7 @@ def __check_datetime(value):
     try:
         m = re.match(
             r'^\d{4}(-\d{2}(-\d{2}((T| )(\d{2}(:\d{2}(:\d{2}((\+|-)\d{1,2}:\d{2}){0,1}){0,1}){0,1}){0,1}){0,1}){0,1}){0,1}$',
-            value
+            value,
         )
         return m is not None
     except:
@@ -333,22 +358,17 @@ def format_datetime(value):
     if not __check_datetime(value):
         return None
 
-    return {
-        'value': value
-    }
+    return {'value': value}
 
 
 def format_date(value):
     if not __check_datetime(value):
         return None
 
-    return {
-        'value': re.split(' |T', value)[0].strip()
-    }
+    return {'value': re.split(' |T', value)[0].strip()}
 
 
 def split_value(value):
-
     res = []
     if isinstance(value, str):
         parts = re.split(',|;', value)
@@ -382,7 +402,6 @@ def split_value(value):
 
 
 def parse_datamodel(data, logger=None):
-
     if data is None:
         return {}
 
@@ -401,8 +420,16 @@ def parse_datamodel(data, logger=None):
 
 # ---------------------------
 
-def import_data(post_body, mappings, languages, api_url, token, easydb_context=None, logger=None) -> dict:
 
+def import_data(
+    post_body,
+    mappings,
+    languages,
+    api_url,
+    token,
+    easydb_context=None,
+    logger=None,
+) -> dict:
     start_all = time_now('start_all')
     time_now('start_parse_data')
     collected_objects, stats = zooniverse.parse_data(post_body, logger)
@@ -413,7 +440,7 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
     stats['new'] = {}
     stats['times'] = {
         'start': str(start_all),
-        'parse_data': time_diff('start_parse_data')
+        'parse_data': time_diff('start_parse_data'),
     }
     stats['count']['new'] = {}
     stats['count']['new_total'] = 0
@@ -444,15 +471,12 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
             api_url,
             token,
             easydb_context,
-            logger
+            logger,
         )
 
         event = {
             'type': 'ZOONIVERSE_IMPORT_UPDATE',
-            'info_json': {
-                'objecttype': objecttype,
-                'objects': []
-            }
+            'info_json': {'objecttype': objecttype, 'objects': []},
         }
 
         top_level_field_user, field_user, _ = mapping.path_from_mapping(
@@ -460,7 +484,11 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
             column_name='update_column_user_name',
             logger=logger,
         )
-        top_level_field_created, field_created, field_created_type = mapping.path_from_mapping(
+        (
+            top_level_field_created,
+            field_created,
+            field_created_type,
+        ) = mapping.path_from_mapping(
             mapping=ot_mapping,
             column_name='update_column_created_at',
             logger=logger,
@@ -470,7 +498,10 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
         updated_objects = []
         for signatur in affected_objects:
             if signatur not in collected_objects:
-                debug('signatur {0} not in collected objects -> skip'.format(signatur), logger)
+                debug(
+                    'signatur {0} not in collected objects -> skip'.format(signatur),
+                    logger,
+                )
                 continue
 
             obj = affected_objects[signatur]
@@ -479,7 +510,6 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
 
             for user_name in zooniverse_data:
                 for created_at in zooniverse_data[user_name]:
-
                     # if the fields for the user and the date of the zooniverse entry is grouped in the same nested table,
                     # check if this pair of user and date is already in the current object.
                     # if this is the case, skip this entry completly
@@ -495,9 +525,13 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
                                     continue
 
                                 if field_created_type in ['date', 'datetime']:
-                                    entry_created_at = get_json_value(entry, '{}.value'.format(field_created))
+                                    entry_created_at = get_json_value(
+                                        entry, '{}.value'.format(field_created)
+                                    )
                                 else:
-                                    entry_created_at = get_json_value(entry, field_created)
+                                    entry_created_at = get_json_value(
+                                        entry, field_created
+                                    )
                                 if entry_created_at != created_at:
                                     continue
 
@@ -505,12 +539,20 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
                                 break
 
                     if skip_zooniverse_entry:
-                        debug('pair of user_name="{}" and created_at="{}" is already in object with signature {} -> skip'.format(
-                            user_name, created_at, signatur), logger)
+                        debug(
+                            'pair of user_name="{}" and created_at="{}" is already in object with signature {} -> skip'.format(
+                                user_name, created_at, signatur
+                            ),
+                            logger,
+                        )
                         continue
 
-                    debug('add zooniverse data for user_name="{}" and created_at="{}" to object with signature {}'.format(
-                        user_name, created_at, signatur), logger)
+                    debug(
+                        'add zooniverse data for user_name="{}" and created_at="{}" to object with signature {}'.format(
+                            user_name, created_at, signatur
+                        ),
+                        logger,
+                    )
 
                     # decide if user and created_at are in the same nested table
                     # if so, group them together
@@ -556,16 +598,16 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
                         dummy_obj = {}
 
                         if field_created_type in ['date', 'datetime']:
-                            entry_created_at = {
-                                'value': created_at
-                            }
+                            entry_created_at = {'value': created_at}
                         else:
                             entry_created_at = created_at
 
-                        dummy_obj[top_level_field_user] = [{
-                            field_user: user_name,
-                            field_created: entry_created_at,
-                        }]
+                        dummy_obj[top_level_field_user] = [
+                            {
+                                field_user: user_name,
+                                field_created: entry_created_at,
+                            }
+                        ]
 
                         for k in zooniverse_data[user_name][created_at]:
                             mapping.apply(
@@ -580,16 +622,29 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
                                 logger=logger,
                             )
 
-                        if top_level_field_user in obj and isinstance(obj[top_level_field_user], list):
+                        if top_level_field_user in obj and isinstance(
+                            obj[top_level_field_user], list
+                        ):
                             for entry in dummy_obj[top_level_field_user]:
                                 obj[top_level_field_user].append(entry)
                         else:
                             obj[top_level_field_user] = dummy_obj[top_level_field_user]
 
-                        debug('add zooniverse data for user_name="{}" and created_at="{}" to object with signature {}: dummy: {}'.format(
-                            user_name, created_at, signatur, dumpjs(dummy_obj)), logger)
-                        debug('add zooniverse data for user_name="{}" and created_at="{}" to object with signature {}: ==>: {}'.format(
-                            user_name, created_at, signatur, dumpjs(obj[top_level_field_user])), logger)
+                        debug(
+                            'add zooniverse data for user_name="{}" and created_at="{}" to object with signature {}: dummy: {}'.format(
+                                user_name, created_at, signatur, dumpjs(dummy_obj)
+                            ),
+                            logger,
+                        )
+                        debug(
+                            'add zooniverse data for user_name="{}" and created_at="{}" to object with signature {}: ==>: {}'.format(
+                                user_name,
+                                created_at,
+                                signatur,
+                                dumpjs(obj[top_level_field_user]),
+                            ),
+                            logger,
+                        )
 
                     obj_changed = True
 
@@ -608,12 +663,14 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
             updated_objects.append(__build_object(objecttype, obj, languages=languages))
             count_updated += 1
 
-            event['info_json']['objects'].append({
-                '_id': id,
-                '_version': version + 1,
-                'match_column': match_column,
-                'unique_value': signatur
-            })
+            event['info_json']['objects'].append(
+                {
+                    '_id': id,
+                    '_version': version + 1,
+                    'match_column': match_column,
+                    'unique_value': signatur,
+                }
+            )
 
         if len(updated_objects) < 1:
             continue
@@ -622,7 +679,9 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
         stats['count']['updated'][objecttype] = count_updated
         stats['count']['updated_total'] += count_updated
 
-        event['info_json']['objects'] = sorted(event['info_json']['objects'], key=lambda o: o['_id'])
+        event['info_json']['objects'] = sorted(
+            event['info_json']['objects'], key=lambda o: o['_id']
+        )
         stats['events'].append(event)
 
     stats['times']['apply_mapping'] = time_diff('start_apply_mapping')
@@ -638,7 +697,9 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
     )
     stats['new'] = new_linked_objects
     stats['count']['new'] = count_new
-    stats['times']['create_new_linked_objects'] = time_diff('start_create_new_linked_objects')
+    stats['times']['create_new_linked_objects'] = time_diff(
+        'start_create_new_linked_objects'
+    )
 
     for objecttype in unique_linked_object_values:
         event = {
@@ -646,8 +707,8 @@ def import_data(post_body, mappings, languages, api_url, token, easydb_context=N
             'info_json': {
                 'objecttype': objecttype,
                 'unique_column': match_column,
-                'unique_values': []
-            }
+                'unique_values': [],
+            },
         }
 
         for unique_column in unique_linked_object_values[objecttype]:
