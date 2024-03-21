@@ -14,7 +14,7 @@ class ZooniverseImportBaseConfig extends BaseConfigPlugin
             return Mask.getMaskByMaskName("_all_fields", idTable)
 
         __isObjectField = (field, data, parentField) ->
-            return not field.isTopLevelField() and not field.isSystemField() and
+            return field not instanceof MaskSplitter and not field.isTopLevelField() and not field.isSystemField() and
                 field.__csl not in [
                     "ez5-pool-field",
                     "ez5-version-column"
